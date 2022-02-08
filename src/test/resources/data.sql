@@ -1,0 +1,1 @@
+INSERT INTO BUS_STOP (name) VALUES ( 'Grüner Platz' )
