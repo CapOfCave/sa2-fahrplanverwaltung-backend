@@ -29,7 +29,7 @@ public class BusStopController {
 
     @GetMapping("/")
     public Collection<BusStop> getBusStops() {
-        return this.busStopService.getHaltestellen();
+        return this.busStopService.getBusStops();
     }
 
     @PostMapping("/")
@@ -44,6 +44,6 @@ public class BusStopController {
 
     @DeleteMapping("/:id")
     public void createBusStop(@RequestParam long id) {
-        this.busStopService.deleteHaltestelle(id);
+        this.busStopService.deleteBusStop(id);
     }
 }
