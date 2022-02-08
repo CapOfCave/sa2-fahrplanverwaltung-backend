@@ -20,15 +20,13 @@ public class LineService {
     }
 
     public Line createLine(String name) {
-        // TODO check if name is unique
+        // TODO exception handling
         var line = new Line(name);
         return this.lineRepository.save(line);
     }
 
     public Collection<Line> getLines() {
-        List<Line> lines = new ArrayList<>();
-        this.lineRepository.findAll().forEach(lines::add);
-        return lines;
+        return new ArrayList<>(this.lineRepository.findAll());
     }
 
     public void deleteLine(long id) {
@@ -40,4 +38,9 @@ public class LineService {
         line.setName(name);
         return this.lineRepository.save(line);
     }
+
+    public Optional<Line> getLine(long id) {
+        return this.lineRepository.findById(id);
+    }
+
 }

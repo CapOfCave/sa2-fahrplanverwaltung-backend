@@ -32,18 +32,25 @@ public class LineController {
         return this.lineService.getLines();
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Line> getLine(@PathVariable long id) {
+        return this.lineService.getLine(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PostMapping("/")
     public Line createLine(@RequestBody CreateLineRequest createLineRequest) {
         return this.lineService.createLine(createLineRequest.getName());
     }
 
-    @PutMapping("/:id")
-    public Line modifyLine(@RequestParam long id, @RequestBody ModifyLineRequest modifyLineRequest) {
+    @PutMapping("/{id}")
+    public Line modifyLine(@PathVariable long id, @RequestBody ModifyLineRequest modifyLineRequest) {
         return this.lineService.modifyLine(id, modifyLineRequest.getName());
     }
 
-    @DeleteMapping("/:id")
-    public void createLine(@RequestParam long id) {
+    @DeleteMapping("/{id}")
+    public void createLine(@PathVariable long id) {
         this.lineService.deleteLine(id);
     }
 }

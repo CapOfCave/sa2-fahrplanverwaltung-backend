@@ -1,0 +1,11 @@
+INSERT INTO BUS_STOP (name) VALUES ( 'Abbey Road' );
+INSERT INTO BUS_STOP (name) VALUES ( 'Barn Street' );
+INSERT INTO BUS_STOP (name) VALUES ( 'Camp Street' );
+INSERT INTO BUS_STOP (name) VALUES ( 'Dean Avenue' );
+INSERT INTO BUS_STOP (name) VALUES ( 'East Hills Avenue' );
+INSERT INTO BUS_STOP (name) VALUES ( 'Farmer''s lane' );
+INSERT INTO BUS_STOP (name) VALUES ( 'Gold Street' );
+INSERT INTO LINE (name) VALUES ( '1' );
+INSERT INTO LINE (name) VALUES ( '10' );
+INSERT INTO LINE (name) VALUES ( 'S40' );
+INSERT INTO LINE (name) VALUES ( 'N89' );

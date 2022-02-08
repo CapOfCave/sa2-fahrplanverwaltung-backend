@@ -28,28 +28,36 @@ class BusStopServiceTest {
 
     @Test
     void testCreateBusStop() {
+        long countBefore = busStopRepository.count();
         String name = "5th Avenue";
-        this.objectUnderTest.createBusStop(name);
+        BusStop returnedBusStop = this.objectUnderTest.createBusStop(name);
 
-        assertEquals(2, busStopRepository.count());
+        BusStop actualBusStop = busStopRepository.findById(returnedBusStop.getId()).orElseThrow();
+        assertEquals(name, actualBusStop.getName());
+        assertEquals(countBefore + 1, busStopRepository.count());
     }
 
     @Test
     void testGetBusStops() {
+        int count = (int) this.busStopRepository.count();
         Collection<BusStop> busStops = this.objectUnderTest.getBusStops();
         assertThat(busStops)
-                .hasSize(1)
-                .first()
-                .extracting(BusStop::getName)
-                .isEqualTo("Abbey Road");
+                .hasSizeGreaterThan(1)
+                .hasSize(count);
+    }
+
+    @Test
+    void testGetBusStop() {
+        BusStop busStop = this.objectUnderTest.getBusStop(1).orElseThrow();
+        assertEquals("Abbey Road", busStop.getName());
     }
 
     @Test
     void testDeleteBusStop() {
-        BusStop stop = this.busStopRepository.save(new BusStop("James Street"));
-        assertEquals(2, this.busStopRepository.count());
-        this.objectUnderTest.deleteBusStop(stop.getId());
-        assertEquals(1, this.busStopRepository.count());
+        long countBefore = busStopRepository.count();
+        this.objectUnderTest.deleteBusStop(1);
+        assertEquals(countBefore - 1, this.busStopRepository.count());
+        assertThat(this.busStopRepository.findById(1L)).isEmpty();
     }
 
     @Test

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class BusStopService {
@@ -26,9 +27,7 @@ public class BusStopService {
     }
 
     public Collection<BusStop> getBusStops() {
-        List<BusStop> busStops = new ArrayList<>();
-        this.busStopRepository.findAll().forEach(busStops::add);
-        return busStops;
+        return new ArrayList<>(this.busStopRepository.findAll());
     }
 
     public void deleteBusStop(long id) {
@@ -39,5 +38,9 @@ public class BusStopService {
         BusStop busStop = this.busStopRepository.findById(id).orElseThrow();
         busStop.setName(name);
         return this.busStopRepository.save(busStop);
+    }
+
+    public Optional<BusStop> getBusStop(long id) {
+        return this.busStopRepository.findById(id);
     }
 }

@@ -1,7 +1,7 @@
 package de.hswhameln.timetablemanager.repositories;
 
 import de.hswhameln.timetablemanager.entities.BusStop;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface BusStopRepository extends CrudRepository<BusStop, Long> {
+public interface BusStopRepository extends JpaRepository<BusStop, Long> {
 }

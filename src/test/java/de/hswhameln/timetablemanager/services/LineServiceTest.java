@@ -1,5 +1,6 @@
 package de.hswhameln.timetablemanager.services;
 
+import de.hswhameln.timetablemanager.entities.BusStop;
 import de.hswhameln.timetablemanager.entities.Line;
 import de.hswhameln.timetablemanager.repositories.LineRepository;
 import org.junit.jupiter.api.Test;
@@ -28,28 +29,35 @@ class LineServiceTest {
 
     @Test
     void testCreateLine() {
+        long countBefore = this.lineRepository.count();
         String name = "77";
-        this.objectUnderTest.createLine(name);
+        Line returnedBusStop = this.objectUnderTest.createLine(name);
 
-        assertEquals(2, lineRepository.count());
+        Line actualLine = lineRepository.findById(returnedBusStop.getId()).orElseThrow();
+        assertEquals(name, actualLine.getName());
+        assertEquals(countBefore + 1, lineRepository.count());
     }
 
     @Test
     void testGetLines() {
+        int count = (int) this.lineRepository.count();
         Collection<Line> lines = this.objectUnderTest.getLines();
         assertThat(lines)
-                .hasSize(1)
-                .first()
-                .extracting(Line::getName)
-                .isEqualTo("S56");
+                .hasSizeGreaterThan(1)
+                .hasSize(count);
+    }
+    @Test
+    void testGetLine() {
+        Line line = this.objectUnderTest.getLine(1).orElseThrow();
+        assertEquals("1", line.getName());
     }
 
     @Test
     void testDeleteLine() {
-        Line stop = this.lineRepository.save(new Line("81"));
-        assertEquals(2, this.lineRepository.count());
-        this.objectUnderTest.deleteLine(stop.getId());
-        assertEquals(1, this.lineRepository.count());
+        long countBefore = lineRepository.count();
+        this.objectUnderTest.deleteLine(1);
+        assertEquals(countBefore - 1, this.lineRepository.count());
+        assertThat(this.lineRepository.findById(1L)).isEmpty();
     }
 
     @Test
