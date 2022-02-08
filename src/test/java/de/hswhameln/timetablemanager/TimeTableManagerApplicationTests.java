@@ -1,10 +1,10 @@
-package de.hswhameln.fahrplanverwaltung;
+package de.hswhameln.timetablemanager;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class FahrplanverwaltungApplicationTests {
+class TimeTableManagerApplicationTests {
 
 	@Test
 	void contextLoads() {

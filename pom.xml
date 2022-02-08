@@ -9,12 +9,12 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>de.hswhameln</groupId>
-	<artifactId>fahrplanverwaltung</artifactId>
+	<artifactId>timetablemanager</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Fahrplanverwaltung</name>
-	<description>Fahrplanverwaltungssystem für den öffentlichen Busnahverkehr</description>
+	<name>Timetable Manager</name>
+	<description>Timetable manager for public transit</description>
 	<properties>
-		<java.version>11</java.version>
+		<java.version>17</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -24,6 +24,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-ui</artifactId>
+			<version>1.6.5</version>
 		</dependency>
 
 		<dependency>
