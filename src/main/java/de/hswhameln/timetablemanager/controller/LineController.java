@@ -1,8 +1,10 @@
 package de.hswhameln.timetablemanager.controller;
 
+import de.hswhameln.timetablemanager.dto.AddBusStopRequest;
 import de.hswhameln.timetablemanager.dto.CreateLineRequest;
 import de.hswhameln.timetablemanager.dto.ModifyLineRequest;
 import de.hswhameln.timetablemanager.entities.Line;
+import de.hswhameln.timetablemanager.entities.LineStop;
 import de.hswhameln.timetablemanager.services.LineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
@@ -54,5 +55,15 @@ public class LineController {
     @DeleteMapping("/{id}")
     public void createLine(@PathVariable long id) {
         this.lineService.deleteLine(id);
+    }
+
+    @GetMapping("/{id}/busstops")
+    public Collection<LineStop> getBusStops(@PathVariable long id) {
+        return this.lineService.getBusStops(id);
+    }
+
+    @PostMapping("/{id}/busstops")
+    public void addBusStop(@PathVariable long id, @RequestBody AddBusStopRequest addBusStopRequest) {
+        this.lineService.addBusStop(id, addBusStopRequest.getBusStopId(), addBusStopRequest.getSecondsToNextStop());
     }
 }
