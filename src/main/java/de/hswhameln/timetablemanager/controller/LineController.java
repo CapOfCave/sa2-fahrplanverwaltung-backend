@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -55,7 +56,7 @@ public class LineController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{lineId}")
+    @PatchMapping("/{lineId}")
     public LineDetailDto modifyLine(@PathVariable long lineId, @RequestBody ModifyLineRequest modifyLineRequest) {
         Line line =  this.lineService.modifyLine(lineId, modifyLineRequest.getName());
         return this.lineToDtoMapper.mapToLineDetailDto(line);
