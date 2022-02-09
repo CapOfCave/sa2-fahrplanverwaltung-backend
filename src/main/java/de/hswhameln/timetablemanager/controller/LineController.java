@@ -28,30 +28,30 @@ public class LineController {
         this.lineService = lineService;
     }
 
-    @GetMapping("/")
+    @GetMapping
     public Collection<Line> getLines() {
         return this.lineService.getLines();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Line> getLine(@PathVariable long id) {
-        return this.lineService.getLine(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @PostMapping("/")
+    @PostMapping
     public Line createLine(@RequestBody CreateLineRequest createLineRequest) {
         return this.lineService.createLine(createLineRequest.getName());
     }
 
-    @PutMapping("/{id}")
-    public Line modifyLine(@PathVariable long id, @RequestBody ModifyLineRequest modifyLineRequest) {
-        return this.lineService.modifyLine(id, modifyLineRequest.getName());
+    @GetMapping("/{lineId}")
+    public ResponseEntity<Line> getLine(@PathVariable long lineId) {
+        return this.lineService.getLine(lineId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{id}")
-    public void createLine(@PathVariable long id) {
-        this.lineService.deleteLine(id);
+    @PutMapping("/{lineId}")
+    public Line modifyLine(@PathVariable long lineId, @RequestBody ModifyLineRequest modifyLineRequest) {
+        return this.lineService.modifyLine(lineId, modifyLineRequest.getName());
+    }
+
+    @DeleteMapping("/{lineId}")
+    public void createLine(@PathVariable long lineId) {
+        this.lineService.deleteLine(lineId);
     }
 }

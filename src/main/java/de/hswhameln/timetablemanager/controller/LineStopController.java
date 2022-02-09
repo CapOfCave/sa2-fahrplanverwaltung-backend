@@ -28,12 +28,12 @@ public class LineStopController {
         this.lineService = lineService;
     }
 
-    @GetMapping("/")
+    @GetMapping
     public Collection<LineStop> getBusStops(@PathVariable long lineId) {
         return this.lineService.getBusStops(lineId);
     }
 
-    @PostMapping("/")
+    @PostMapping
     public void addBusStop(@PathVariable long lineId, @RequestBody AddBusStopRequest addBusStopRequest) {
         this.lineService.addBusStop(lineId, addBusStopRequest.getBusStopId(), addBusStopRequest.getSecondsToNextStop(), addBusStopRequest.getTargetIndex());
     }

@@ -28,30 +28,30 @@ public class BusStopController {
         this.busStopService = busStopService;
     }
 
-    @GetMapping("/")
+    @GetMapping
     public Collection<BusStop> getBusStops() {
         return this.busStopService.getBusStops();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<BusStop> getBusStop(@PathVariable long id) {
-        return this.busStopService.getBusStop(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @PostMapping("/")
+    @PostMapping
     public BusStop createBusStop(@RequestBody CreateBusStopRequest createBusStopRequest) {
         return this.busStopService.createBusStop(createBusStopRequest.getName());
     }
 
-    @PutMapping("/{id}")
-    public BusStop modifyBusStop(@PathVariable long id, @RequestBody ModifyBusStopRequest modifyBusStopRequest) {
-        return this.busStopService.modifyBusStop(id, modifyBusStopRequest.getName());
+    @PutMapping("/{busStopId}")
+    public BusStop modifyBusStop(@PathVariable long busStopId, @RequestBody ModifyBusStopRequest modifyBusStopRequest) {
+        return this.busStopService.modifyBusStop(busStopId, modifyBusStopRequest.getName());
     }
 
-    @DeleteMapping("/{id}")
-    public void createBusStop(@PathVariable long id) {
-        this.busStopService.deleteBusStop(id);
+    @GetMapping("/{busStopId}")
+    public ResponseEntity<BusStop> getBusStop(@PathVariable long busStopId) {
+        return this.busStopService.getBusStop(busStopId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{busStopId}")
+    public void createBusStop(@PathVariable long busStopId) {
+        this.busStopService.deleteBusStop(busStopId);
     }
 }
