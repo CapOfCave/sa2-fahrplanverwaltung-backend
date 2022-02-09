@@ -1,12 +1,13 @@
 package de.hswhameln.timetablemanager.entities;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import java.util.Collection;
+import javax.persistence.OrderBy;
+import java.util.List;
 
 @Entity
 public class Line {
@@ -17,8 +18,9 @@ public class Line {
 
     private String name;
 
-    @OneToMany(mappedBy = "line")
-    private Collection<LineStop> lineStops;
+    @OneToMany(mappedBy = "line", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("index")
+    private List<LineStop> lineStops;
 
     public Line() {
     }
@@ -43,4 +45,16 @@ public class Line {
         this.name = name;
     }
 
+    public List<LineStop> _getLineStops() {
+        return this.lineStops;
+    }
+
+    @Override
+    public String toString() {
+        return "Line{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", lineStops=" + lineStops +
+                '}';
+    }
 }

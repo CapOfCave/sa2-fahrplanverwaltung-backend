@@ -8,6 +8,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+    show-sql: true
 
 timetablemanager:
   allowed-origin: http://localhost:3000

@@ -9,5 +9,5 @@ public interface LineStopRepository extends JpaRepository<LineStop, Long> {
 
     Collection<LineStop> findByLineIdOrderByIndex(long lineId);
 
-    long countByLineId(long lineId);
+    int countByLineId(long lineId);
 }

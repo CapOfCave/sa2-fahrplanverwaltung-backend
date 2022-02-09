@@ -4,6 +4,7 @@ public class AddBusStopRequest {
 
     private long busStopId;
     private Integer secondsToNextStop;
+    private int targetIndex;
 
     public long getBusStopId() {
         return busStopId;
@@ -19,5 +20,13 @@ public class AddBusStopRequest {
 
     public void setSecondsToNextStop(Integer secondsToNextStop) {
         this.secondsToNextStop = secondsToNextStop;
+    }
+
+    public int getTargetIndex() {
+        return targetIndex;
+    }
+
+    public void setTargetIndex(int targetIndex) {
+        this.targetIndex = targetIndex;
     }
 }
