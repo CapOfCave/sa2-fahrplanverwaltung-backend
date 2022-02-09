@@ -45,8 +45,8 @@ public class LineStopService {
     public void removeBusStop(long lineId, long lineStopId) throws NotFoundException {
         var line = this.lineRepository.findById(lineId).orElseThrow(() -> new NotFoundException("Line with ID " + lineId + " does not exist." ));
         var lineStop = this.lineStopRepository.findById(lineStopId).orElseThrow(() -> new NotFoundException("LineStop with ID " + lineStopId + " does not exist." ));
-        if (lineStop._getLine().getId() != lineId) {
-            throw new NotFoundException("LineStop with ID " + lineStopId + " does not exist on line " + lineId + ". (Hint: it's on line " + lineStop._getLine().getId() +" instead.)");
+        if (lineStop.getLine().getId() != lineId) {
+            throw new NotFoundException("LineStop with ID " + lineStopId + " does not exist on line " + lineId + ". (Hint: it's on line " + lineStop.getLine().getId() +" instead.)");
         }
 
         removeLineStop(line, lineStop);

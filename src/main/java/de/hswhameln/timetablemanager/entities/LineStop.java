@@ -66,10 +66,6 @@ public class LineStop {
         return this.index;
     }
 
-    public long getLinewwwId() {
-        return this.line.getId();
-    }
-
     public void setIndex(int index) {
         this.index = index;
     }
@@ -84,7 +80,8 @@ public class LineStop {
                 "id=" + id +
                 ", index=" + index +
                 ", secondsToNextStop=" + secondsToNextStop +
-                ", busStop=" + busStop +
+                ", line=" + line.getId() +
+                ", busStop=" + busStop.getId() +
                 '}';
     }
 
@@ -99,11 +96,6 @@ public class LineStop {
     @Override
     public int hashCode() {
         return Objects.hash(id);
-    }
-
-    // TODO use DTOs as return objects and rename this to getLine()
-    public Line _getLine() {
-        return this.line;
     }
 
     public Line getLine() {

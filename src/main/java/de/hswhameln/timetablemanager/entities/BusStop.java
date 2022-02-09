@@ -1,10 +1,17 @@
 package de.hswhameln.timetablemanager.entities;
 
+import org.hibernate.annotations.LazyCollection;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class BusStop {
@@ -15,6 +22,10 @@ public class BusStop {
 
     @Column
     private String name;
+
+    @OneToMany(mappedBy = "busStop", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LineStop> lineStops = new ArrayList<>();
+
 
     public BusStop() {
     }
@@ -37,5 +48,18 @@ public class BusStop {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<LineStop> getLineStops() {
+        return lineStops;
+    }
+
+    @Override
+    public String toString() {
+        return "BusStop{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", lineStops=" + lineStops +
+                '}';
     }
 }
