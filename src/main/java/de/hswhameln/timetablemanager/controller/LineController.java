@@ -1,14 +1,10 @@
 package de.hswhameln.timetablemanager.controller;
 
-import de.hswhameln.timetablemanager.dto.AddBusStopRequest;
 import de.hswhameln.timetablemanager.dto.CreateLineRequest;
 import de.hswhameln.timetablemanager.dto.ModifyLineRequest;
 import de.hswhameln.timetablemanager.entities.Line;
-import de.hswhameln.timetablemanager.entities.LineStop;
-import de.hswhameln.timetablemanager.exceptions.NotFoundException;
 import de.hswhameln.timetablemanager.services.LineService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +14,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collection;
 
@@ -58,24 +53,5 @@ public class LineController {
     @DeleteMapping("/{id}")
     public void createLine(@PathVariable long id) {
         this.lineService.deleteLine(id);
-    }
-
-    @GetMapping("/{id}/busstops")
-    public Collection<LineStop> getBusStops(@PathVariable long id) {
-        return this.lineService.getBusStops(id);
-    }
-
-    @PostMapping("/{id}/busstops")
-    public void addBusStop(@PathVariable long id, @RequestBody AddBusStopRequest addBusStopRequest) {
-        this.lineService.addBusStop(id, addBusStopRequest.getBusStopId(), addBusStopRequest.getSecondsToNextStop(), addBusStopRequest.getTargetIndex());
-    }
-
-    @DeleteMapping("/{lineId}/busstops/{lineStopId}")
-    public void removeBusStop(@PathVariable long lineId, @PathVariable long lineStopId) {
-        try {
-            this.lineService.removeBusStop(lineId, lineStopId);
-        } catch (NotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
     }
 }
