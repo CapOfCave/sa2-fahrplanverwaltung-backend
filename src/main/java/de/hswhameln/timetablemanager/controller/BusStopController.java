@@ -1,8 +1,11 @@
 package de.hswhameln.timetablemanager.controller;
 
-import de.hswhameln.timetablemanager.dto.CreateBusStopRequest;
-import de.hswhameln.timetablemanager.dto.ModifyBusStopRequest;
+import de.hswhameln.timetablemanager.dto.requests.CreateBusStopRequest;
+import de.hswhameln.timetablemanager.dto.requests.ModifyBusStopRequest;
+import de.hswhameln.timetablemanager.dto.responses.BusStopDetailDto;
+import de.hswhameln.timetablemanager.dto.responses.BusStopOverviewDto;
 import de.hswhameln.timetablemanager.entities.BusStop;
+import de.hswhameln.timetablemanager.mapping.BusStopToDtoMapper;
 import de.hswhameln.timetablemanager.services.BusStopService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,36 +25,44 @@ import java.util.Collection;
 public class BusStopController {
 
     private final BusStopService busStopService;
+    private final BusStopToDtoMapper busStopToDtoMapper;
 
     @Autowired
-    public BusStopController(BusStopService busStopService) {
+    public BusStopController(BusStopService busStopService, BusStopToDtoMapper busStopToDtoMapper) {
         this.busStopService = busStopService;
+        this.busStopToDtoMapper = busStopToDtoMapper;
     }
 
     @GetMapping
-    public Collection<BusStop> getBusStops() {
-        return this.busStopService.getBusStops();
+    public Collection<BusStopOverviewDto> getBusStops() {
+        return this.busStopService.getBusStops()
+                .stream()
+                .map(this.busStopToDtoMapper::mapToBusStopOverviewDto)
+                .toList();
     }
 
     @PostMapping
-    public BusStop createBusStop(@RequestBody CreateBusStopRequest createBusStopRequest) {
-        return this.busStopService.createBusStop(createBusStopRequest.getName());
+    public BusStopDetailDto createBusStop(@RequestBody CreateBusStopRequest createBusStopRequest) {
+        BusStop busStop = this.busStopService.createBusStop(createBusStopRequest.getName());
+        return this.busStopToDtoMapper.mapToBusStopDetailDto(busStop);
     }
 
     @PutMapping("/{busStopId}")
-    public BusStop modifyBusStop(@PathVariable long busStopId, @RequestBody ModifyBusStopRequest modifyBusStopRequest) {
-        return this.busStopService.modifyBusStop(busStopId, modifyBusStopRequest.getName());
+    public BusStopDetailDto modifyBusStop(@PathVariable long busStopId, @RequestBody ModifyBusStopRequest modifyBusStopRequest) {
+        BusStop busStop = this.busStopService.modifyBusStop(busStopId, modifyBusStopRequest.getName());
+        return this.busStopToDtoMapper.mapToBusStopDetailDto(busStop);
     }
 
     @GetMapping("/{busStopId}")
-    public ResponseEntity<BusStop> getBusStop(@PathVariable long busStopId) {
+    public ResponseEntity<BusStopDetailDto> getBusStop(@PathVariable long busStopId) {
         return this.busStopService.getBusStop(busStopId)
+                .map(this.busStopToDtoMapper::mapToBusStopDetailDto)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{busStopId}")
-    public void createBusStop(@PathVariable long busStopId) {
+    public void deleteBusStop(@PathVariable long busStopId) {
         this.busStopService.deleteBusStop(busStopId);
     }
 }

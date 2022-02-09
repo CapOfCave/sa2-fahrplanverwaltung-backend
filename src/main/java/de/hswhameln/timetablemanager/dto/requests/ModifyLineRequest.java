@@ -1,13 +1,13 @@
-package de.hswhameln.timetablemanager.dto;
+package de.hswhameln.timetablemanager.dto.requests;
 
-public class ModifyBusStopRequest {
+public class ModifyLineRequest {
 
     private String name;
 
-    public ModifyBusStopRequest() {
+    public ModifyLineRequest() {
     }
 
-    public ModifyBusStopRequest(String name) {
+    public ModifyLineRequest(String name) {
         this.name = name;
     }
 

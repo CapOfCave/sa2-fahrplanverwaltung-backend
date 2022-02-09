@@ -1,8 +1,11 @@
 package de.hswhameln.timetablemanager.controller;
 
-import de.hswhameln.timetablemanager.dto.CreateLineRequest;
-import de.hswhameln.timetablemanager.dto.ModifyLineRequest;
+import de.hswhameln.timetablemanager.dto.requests.CreateLineRequest;
+import de.hswhameln.timetablemanager.dto.requests.ModifyLineRequest;
+import de.hswhameln.timetablemanager.dto.responses.LineDetailDto;
+import de.hswhameln.timetablemanager.dto.responses.LineOverviewDto;
 import de.hswhameln.timetablemanager.entities.Line;
+import de.hswhameln.timetablemanager.mapping.LineToDtoMapper;
 import de.hswhameln.timetablemanager.services.LineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,36 +25,44 @@ import java.util.Collection;
 public class LineController {
 
     private final LineService lineService;
+    private final LineToDtoMapper lineToDtoMapper;
 
     @Autowired
-    public LineController(LineService lineService) {
+    public LineController(LineService lineService, LineToDtoMapper lineToDtoMapper) {
         this.lineService = lineService;
+        this.lineToDtoMapper = lineToDtoMapper;
     }
 
     @GetMapping
-    public Collection<Line> getLines() {
-        return this.lineService.getLines();
+    public Collection<LineOverviewDto> getLines() {
+        return this.lineService.getLines()
+                .stream()
+                .map(this.lineToDtoMapper::mapToLineOverviewDto)
+                .toList();
     }
 
     @PostMapping
-    public Line createLine(@RequestBody CreateLineRequest createLineRequest) {
-        return this.lineService.createLine(createLineRequest.getName());
+    public LineDetailDto createLine(@RequestBody CreateLineRequest createLineRequest) {
+        Line line = this.lineService.createLine(createLineRequest.getName());
+        return this.lineToDtoMapper.mapToLineDetailDto(line);
     }
 
     @GetMapping("/{lineId}")
-    public ResponseEntity<Line> getLine(@PathVariable long lineId) {
+    public ResponseEntity<LineDetailDto> getLine(@PathVariable long lineId) {
         return this.lineService.getLine(lineId)
+                .map(this.lineToDtoMapper::mapToLineDetailDto)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{lineId}")
-    public Line modifyLine(@PathVariable long lineId, @RequestBody ModifyLineRequest modifyLineRequest) {
-        return this.lineService.modifyLine(lineId, modifyLineRequest.getName());
+    public LineDetailDto modifyLine(@PathVariable long lineId, @RequestBody ModifyLineRequest modifyLineRequest) {
+        Line line =  this.lineService.modifyLine(lineId, modifyLineRequest.getName());
+        return this.lineToDtoMapper.mapToLineDetailDto(line);
     }
 
     @DeleteMapping("/{lineId}")
-    public void createLine(@PathVariable long lineId) {
+    public void deleteLine(@PathVariable long lineId) {
         this.lineService.deleteLine(lineId);
     }
 }

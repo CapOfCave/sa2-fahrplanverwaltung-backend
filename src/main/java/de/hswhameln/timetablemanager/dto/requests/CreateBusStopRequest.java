@@ -1,4 +1,4 @@
-package de.hswhameln.timetablemanager.dto;
+package de.hswhameln.timetablemanager.dto.requests;
 
 public class CreateBusStopRequest {
 

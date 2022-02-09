@@ -1,8 +1,9 @@
 package de.hswhameln.timetablemanager.controller;
 
-import de.hswhameln.timetablemanager.dto.AddBusStopRequest;
-import de.hswhameln.timetablemanager.entities.LineStop;
+import de.hswhameln.timetablemanager.dto.requests.AddBusStopRequest;
+import de.hswhameln.timetablemanager.dto.responses.LineStopOverviewDto;
 import de.hswhameln.timetablemanager.exceptions.NotFoundException;
+import de.hswhameln.timetablemanager.mapping.LineStopToDtoMapper;
 import de.hswhameln.timetablemanager.services.LineStopService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,15 +23,20 @@ import java.util.Collection;
 public class LineStopController {
 
     private final LineStopService lineService;
+    private final LineStopToDtoMapper lineStopToDtoMapper;
 
     @Autowired
-    public LineStopController(LineStopService lineService) {
+    public LineStopController(LineStopService lineService, LineStopToDtoMapper lineStopToDtoMapper) {
         this.lineService = lineService;
+        this.lineStopToDtoMapper = lineStopToDtoMapper;
     }
 
     @GetMapping
-    public Collection<LineStop> getBusStops(@PathVariable long lineId) {
-        return this.lineService.getBusStops(lineId);
+    public Collection<LineStopOverviewDto> getBusStops(@PathVariable long lineId) {
+        return this.lineService.getBusStops(lineId)
+                .stream()
+                .map(this.lineStopToDtoMapper::mapToLineStopOverviewDto)
+                .toList();
     }
 
     @PostMapping
