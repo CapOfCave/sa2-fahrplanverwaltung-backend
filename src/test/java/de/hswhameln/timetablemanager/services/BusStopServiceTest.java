@@ -54,10 +54,11 @@ class BusStopServiceTest {
 
     @Test
     void testDeleteBusStop() {
+        long targetId = 8;
         long countBefore = busStopRepository.count();
-        this.objectUnderTest.deleteBusStop(1);
+        this.objectUnderTest.deleteBusStop(targetId);
         assertEquals(countBefore - 1, this.busStopRepository.count());
-        assertThat(this.busStopRepository.findById(1L)).isEmpty();
+        assertThat(this.busStopRepository.findById(targetId)).isEmpty();
     }
 
     @Test

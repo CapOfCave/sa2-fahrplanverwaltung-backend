@@ -5,7 +5,9 @@ VALUES ('Abbey Road'),
        ('Dean Avenue'),
        ('East Hills Avenue'),
        ('Farmer''s lane'),
-       ('Gold Street');
+       ('Gold Street'),
+       ('Zosnul Street');
+
 
 INSERT INTO LINE (name)
 VALUES ('1'),
