@@ -1,0 +1,13 @@
+springdoc:
+  api-docs:
+    path: /docs
+  swagger-ui:
+    path: /api
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+timetablemanager:
+  allowed-origin: http://localhost:3000

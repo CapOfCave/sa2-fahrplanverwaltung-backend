@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "timetablemanager.allowed-origin",
+      "type": "java.lang.String",
+      "description": "Allowed origin. Generally the URL of the calling frontend."
+  }
+] }
