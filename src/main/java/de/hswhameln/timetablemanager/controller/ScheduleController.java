@@ -1,9 +1,12 @@
 package de.hswhameln.timetablemanager.controller;
 
+import de.hswhameln.timetablemanager.businessobjects.ScheduleBO;
 import de.hswhameln.timetablemanager.dto.requests.CreateScheduleRequest;
-import de.hswhameln.timetablemanager.dto.responses.BusStopDetailDto;
-import de.hswhameln.timetablemanager.dto.responses.BusStopOverviewDto;
 import de.hswhameln.timetablemanager.dto.responses.ScheduleOverviewDto;
+import de.hswhameln.timetablemanager.exceptions.NotFoundException;
+import de.hswhameln.timetablemanager.mapping.ScheduleToDtoMapper;
+import de.hswhameln.timetablemanager.services.ScheduleService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,28 +20,34 @@ import java.util.Collection;
 import java.util.Collections;
 
 @RestController
-@RequestMapping("/schedule")
+@RequestMapping("/schedules")
 public class ScheduleController {
 
+    private final ScheduleService scheduleService;
+    private final ScheduleToDtoMapper scheduleToDtoMapper;
+
+    @Autowired
+    public ScheduleController(ScheduleService scheduleService, ScheduleToDtoMapper scheduleToDtoMapper) {
+        this.scheduleService = scheduleService;
+        this.scheduleToDtoMapper = scheduleToDtoMapper;
+    }
 
     @GetMapping
     public Collection<ScheduleOverviewDto> getSchedules() {
-        return Collections.emptyList();
+        return this.scheduleService.getSchedules()
+                .stream()
+                .map(this.scheduleToDtoMapper::mapToScheduleOverviewDto)
+                .toList();
     }
 
     @PostMapping
-    public ScheduleOverviewDto createSchedule(@RequestBody CreateScheduleRequest createScheduleRequest) {
-        return null;
-    }
-
-    // could possibly be removed
-    @GetMapping("/{scheduleId}")
-    public ResponseEntity<ScheduleOverviewDto> getSchedule(@PathVariable long scheduleId) {
-        return null;
+    public ScheduleOverviewDto createSchedule(@RequestBody CreateScheduleRequest createScheduleRequest) throws NotFoundException {
+        ScheduleBO schedule = this.scheduleService.createSchedule(createScheduleRequest.getLineId(), createScheduleRequest.getStartTime(), createScheduleRequest.isReverseDirection());
+        return this.scheduleToDtoMapper.mapToScheduleOverviewDto(schedule);
     }
 
     @DeleteMapping("/{scheduleId}")
     public void deleteSchedule(@PathVariable long scheduleId) {
-
+        this.scheduleService.deleteSchedule(scheduleId);
     }
 }

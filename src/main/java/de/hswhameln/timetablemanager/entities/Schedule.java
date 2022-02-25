@@ -23,6 +23,9 @@ public class Schedule {
     @Column
     private LocalTime startTime;
 
+    /**
+     * Internally save the direction, not the target destination to ensure normality and data integrity (accepting a slight performance cost on read operations)
+     */
     @Column
     private boolean reverseDirection;
 
@@ -33,5 +36,21 @@ public class Schedule {
         this.line = line;
         this.startTime = startTime;
         this.reverseDirection = reverseDirection;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public Line getLine() {
+        return line;
+    }
+
+    public LocalTime getStartTime() {
+        return startTime;
+    }
+
+    public boolean isReverseDirection() {
+        return reverseDirection;
     }
 }

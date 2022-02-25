@@ -4,7 +4,7 @@ import java.time.LocalTime;
 
 public class CreateScheduleRequest {
 
-    private String lineId;
+    private long lineId;
 
     private LocalTime startTime;
 
@@ -13,11 +13,11 @@ public class CreateScheduleRequest {
     public CreateScheduleRequest() {
     }
 
-    public String getLineId() {
+    public long getLineId() {
         return lineId;
     }
 
-    public void setLineId(String lineId) {
+    public void setLineId(long lineId) {
         this.lineId = lineId;
     }
 

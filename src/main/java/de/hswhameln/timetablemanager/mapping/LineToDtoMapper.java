@@ -24,7 +24,7 @@ public class LineToDtoMapper {
     }
 
     public LineDetailDto mapToLineDetailDto(Line line) {
-        List<LineStopOverviewDto> lineStops = line._getLineStops()
+        List<LineStopOverviewDto> lineStops = line.getLineStops()
                 .stream()
                 .map(lineStopToDtoMapper::mapToLineStopOverviewDto)
                 .toList();

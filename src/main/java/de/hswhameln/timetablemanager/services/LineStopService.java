@@ -53,7 +53,7 @@ public class LineStopService {
     }
 
     private void insertLineStop(Line line, LineStop lineStop, int targetIndex) {
-        List<LineStop> lineStops = line._getLineStops();
+        List<LineStop> lineStops = line.getLineStops();
         lineStop.setIndex(targetIndex);
         // increment following indices
         lineStops.stream().skip(targetIndex).forEach(LineStop::incrementIndex);
@@ -65,7 +65,7 @@ public class LineStopService {
     }
 
     private void removeLineStop(Line line, LineStop lineStop) {
-        List<LineStop> lineStops = line._getLineStops();
+        List<LineStop> lineStops = line.getLineStops();
         int index = lineStops.indexOf(lineStop);
         lineStops.remove(index);
 

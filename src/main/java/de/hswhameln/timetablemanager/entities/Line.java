@@ -46,7 +46,7 @@ public class Line {
         this.name = name;
     }
 
-    public List<LineStop> _getLineStops() {
+    public List<LineStop> getLineStops() {
         return this.lineStops;
     }
 

@@ -1,7 +1,5 @@
 package de.hswhameln.timetablemanager.entities;
 
-import org.hibernate.annotations.LazyCollection;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;

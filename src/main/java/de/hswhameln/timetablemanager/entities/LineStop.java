@@ -7,7 +7,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import java.util.Objects;
 
 @Entity
 public class LineStop {
@@ -23,11 +22,11 @@ public class LineStop {
     private Integer secondsToNextStop;
 
     @ManyToOne
-    @JoinColumn(name="lineId")
+    @JoinColumn(name = "lineId")
     private Line line;
 
     @ManyToOne
-    @JoinColumn(name="busStopId")
+    @JoinColumn(name = "busStopId")
     private BusStop busStop;
 
     public LineStop() {
@@ -83,19 +82,6 @@ public class LineStop {
                 ", line=" + line.getId() +
                 ", busStop=" + busStop.getId() +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LineStop lineStop = (LineStop) o;
-        return id == lineStop.id;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 
     public Line getLine() {
