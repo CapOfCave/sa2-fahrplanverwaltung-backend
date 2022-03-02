@@ -43,6 +43,8 @@ class LineStopControllerTest extends IntegrationTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
+        // validate persisted state
+
         String expectedResponseGet = """
                 [
                     {
@@ -62,6 +64,44 @@ class LineStopControllerTest extends IntegrationTest {
                       "secondsToNextStop": 10,
                       "busStopId": 2,
                       "busStopName": "Barn Street"
+                    },
+                    {
+                      "id": 3,
+                      "secondsToNextStop": null,
+                      "busStopId": 5,
+                      "busStopName": "East Hills Avenue"
+                    }
+                  ]
+                """;
+        this.mockMvc.perform(
+                        get("/lines/{lineId}/busstops", lineId))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json(expectedResponseGet));
+
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testRemoveBusStop() throws Exception {
+
+        int lineId = 1;
+        int lineStopId = 2;
+
+        this.mockMvc.perform(
+                        delete("/lines/{lineId}/busstops/{lineStopId}", lineId, lineStopId))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        // validate persisted state
+
+        String expectedResponseGet = """
+                [
+                    {
+                      "id": 1,
+                      "secondsToNextStop": 60,
+                      "busStopId": 1,
+                      "busStopName": "Abbey Road"
                     },
                     {
                       "id": 3,
