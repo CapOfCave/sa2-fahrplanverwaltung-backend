@@ -17,6 +17,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,7 +62,57 @@ public class BusStopService {
     }
 
     public BusStopScheduleBO getBusStopSchedule(long id) {
-        BusStop busStop = this.busStopRepository.findById(id).orElseThrow();
+        BusStop busStop = this.getBusStop(id).orElseThrow();
+
+        List<BusStopScheduleEntryBO> scheduleEntries = getRelevantSchedules(busStop)
+                .stream()
+                .map(schedule -> {
+                    ScheduleBO scheduleBO = this.scheduleToBoMapper.enrichWithTargetDestination(schedule);
+                    return getArrivalTimesBySchedule(id, schedule)
+                            .stream()
+                            .map(arrivalTime -> new BusStopScheduleEntryBO(scheduleBO, arrivalTime))
+                            .toList();
+                })
+                .flatMap(Collection::stream)
+                .toList();
+
+        return new BusStopScheduleBO(busStop, scheduleEntries);
+    }
+
+    /**
+     * Create all schedule entries caused by this schedule. Note that this may return multiple resulting values if the line crosses this bus stop multiple times.
+     */
+    private Collection<LocalTime> getArrivalTimesBySchedule(long busStopId, Schedule schedule) {
+        if (schedule.isReverseDirection()) {
+            System.out.println("Reverse direction not yet implemented. Ignoring schedule");
+            return Collections.emptyList();
+        }
+
+        return getArrivalTimesByScheduleDefaultDirection(busStopId, schedule);
+    }
+
+    private Collection<LocalTime> getArrivalTimesByScheduleDefaultDirection(long busStopId, Schedule schedule) {
+        Collection<LocalTime> arrivals = new ArrayList<>();
+        int secondsSinceStart = 0;
+        for (LineStop lineStop : schedule.getLine().getLineStops()) {
+            if (lineStop.getBusStop().getId() == busStopId) {
+                LocalTime arrival = schedule.getStartTime().plus(secondsSinceStart, ChronoUnit.SECONDS);
+                arrivals.add(arrival);
+            }
+            Integer secondsToNextStop = lineStop.getSecondsToNextStop();
+            if (secondsToNextStop != null) {
+                secondsSinceStart += secondsToNextStop;
+            }
+        }
+        return arrivals;
+    }
+    
+    /**
+     * Return all distinct schedules that this relate to this bus stop.
+     * @param busStop
+     * @return
+     */
+    private List<Schedule> getRelevantSchedules(BusStop busStop) {
         List<Long> lineIds = busStop.getLineStops()
                 .stream()
                 .map(LineStop::getLine)
@@ -69,35 +120,6 @@ public class BusStopService {
                 .distinct()
                 .toList();
 
-        List<Schedule> relevantSchedules = this.scheduleRepository.findByLineIdIn(lineIds);
-
-        Collection<BusStopScheduleEntryBO> scheduleEntries = new ArrayList<>();
-
-        for (Schedule schedule : relevantSchedules) {
-            if (schedule.isReverseDirection()) {
-                System.out.println("Reverse direction not yet implemented. Ignoring schedule");
-                continue;
-            }
-            ScheduleBO scheduleBO = this.scheduleToBoMapper.enrichWithTargetDestination(schedule);
-
-            Line line = schedule.getLine();
-            List<LineStop> lineStops = line.getLineStops();
-            int secondsSinceStart = 0;
-            for (int i = 0; i < lineStops.size(); i++) {
-                LineStop lineStop = lineStops.get(i);
-                if (lineStop.getBusStop().getId() == id) {
-                    LocalTime arrival = schedule.getStartTime().plus(secondsSinceStart, ChronoUnit.SECONDS);
-                    BusStopScheduleEntryBO busStopScheduleEntryBO = new BusStopScheduleEntryBO(busStop, scheduleBO, arrival);
-                    scheduleEntries.add(busStopScheduleEntryBO);
-                }
-
-                Integer secondsToNextStop = lineStop.getSecondsToNextStop();
-                if (secondsToNextStop != null) {
-                    secondsSinceStart += secondsToNextStop;
-                }
-            }
-        }
-
-        return new BusStopScheduleBO(busStop, scheduleEntries);
+        return this.scheduleRepository.findByLineIdIn(lineIds);
     }
 }
