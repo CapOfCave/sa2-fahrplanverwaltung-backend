@@ -1,11 +1,8 @@
 package de.hswhameln.timetablemanager.mapping;
 
-import de.hswhameln.timetablemanager.businessobjects.BusStopScheduleEntryBO;
 import de.hswhameln.timetablemanager.dto.responses.BusStopDetailDto;
 import de.hswhameln.timetablemanager.dto.responses.BusStopOverviewDto;
-import de.hswhameln.timetablemanager.dto.responses.BusStopScheduleEntryDto;
 import de.hswhameln.timetablemanager.dto.responses.LineOverviewDto;
-import de.hswhameln.timetablemanager.dto.responses.ScheduleOverviewDto;
 import de.hswhameln.timetablemanager.entities.BusStop;
 import de.hswhameln.timetablemanager.entities.LineStop;
 import org.springframework.beans.factory.annotation.Autowired;

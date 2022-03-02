@@ -18,7 +18,6 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -130,8 +129,6 @@ public class BusStopService {
 
     /**
      * Return all distinct schedules that this relate to this bus stop.
-     * @param busStop
-     * @return
      */
     private List<Schedule> getRelevantSchedules(BusStop busStop) {
         List<Long> lineIds = busStop.getLineStops()

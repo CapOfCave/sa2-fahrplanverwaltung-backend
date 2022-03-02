@@ -1,17 +1,12 @@
 package de.hswhameln.timetablemanager.services;
 
 import de.hswhameln.timetablemanager.entities.Line;
-import de.hswhameln.timetablemanager.entities.LineStop;
-import de.hswhameln.timetablemanager.exceptions.NotFoundException;
-import de.hswhameln.timetablemanager.repositories.BusStopRepository;
 import de.hswhameln.timetablemanager.repositories.LineRepository;
-import de.hswhameln.timetablemanager.repositories.LineStopRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 @Service
