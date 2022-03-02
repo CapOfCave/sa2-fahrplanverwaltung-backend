@@ -28,23 +28,19 @@ class LineControllerTest extends IntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private LineRepository lineRepository;
-
-
     @Test
     void testCreateLine() throws Exception {
 
         String requestBody = """
                 {
-                    "name": "LineName"
+                    "name": "S634"
                 }
                 """;
 
         String expectedResponse = """
                 {
                    "id": 1,
-                   "name": "LineName",
+                   "name": "S634",
                    "lineStops": []
                  }
                 """;
@@ -57,11 +53,21 @@ class LineControllerTest extends IntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(expectedResponse));
 
-        List<Line> lines = this.lineRepository.findAll();
-        assertEquals(1, lines.size());
-        Line createdLine = lines.get(0);
-        assertEquals("LineName", createdLine.getName());
-        assertEquals(1L, createdLine.getId());
+        // verify that result is persisted through multiple calls
+
+        String expectedResponseGet = """
+                [
+                   {
+                     "id": 1,
+                     "name": "S634"
+                   }
+                 ]
+                """;
+        this.mockMvc.perform(
+                        get("/lines/"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json(expectedResponseGet));
 
     }
 
@@ -105,6 +111,8 @@ class LineControllerTest extends IntegrationTest {
                 }
                 """;
 
+        // verify that rename is persisted
+
         this.mockMvc.perform(
                         patch("/lines/{lineId}/", 1)
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -113,27 +121,10 @@ class LineControllerTest extends IntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(expectedResponse));
 
-
-    }
-
-    @Test
-    @Sql("/data-test.sql")
-    void testDeleteLine() throws Exception {
-        this.mockMvc.perform(
-                        delete("/lines/{lineId}/", 2))
-                .andDo(print())
-                .andExpect(status().isOk());
-
-    }
-
-    @Test
-    @Sql("/data-test.sql")
-    void testGetLineDetail() throws Exception {
-
-        String expectedResponse = """
+        String expectedResponseGet = """
                 {
                    "id": 1,
-                   "name": "1",
+                   "name": "newName",
                    "lineStops": [
                      {
                        "id": 1,
@@ -163,8 +154,25 @@ class LineControllerTest extends IntegrationTest {
                         get("/lines/{lineId}/", 1))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().json(expectedResponse));
+                .andExpect(content().json(expectedResponseGet));
 
 
     }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testDeleteLine() throws Exception {
+        int lineId = 2;
+        this.mockMvc.perform(
+                        delete("/lines/{lineId}/", lineId))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        this.mockMvc.perform(
+                        get("/lines/{lineId}/", lineId))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+
+    }
+
 }

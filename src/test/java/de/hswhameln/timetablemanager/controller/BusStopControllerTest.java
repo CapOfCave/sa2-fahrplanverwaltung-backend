@@ -1,15 +1,12 @@
 package de.hswhameln.timetablemanager.controller;
 
 import de.hswhameln.timetablemanager.test.IntegrationTest;
-import de.hswhameln.timetablemanager.entities.BusStop;
 import de.hswhameln.timetablemanager.repositories.BusStopRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -28,25 +25,21 @@ class BusStopControllerTest extends IntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private BusStopRepository busStopRepository;
-
-
     @Test
     void testCreateBusStop() throws Exception {
 
         String requestBody = """
                 {
-                    "name": "BusStopName"
+                    "name": "Abbey Road"
                 }
                 """;
 
-        String expectedResponse = """
+        String expectedResponseCreate = """
                 {
                    "id": 1,
-                   "name": "BusStopName",
+                   "name": "Abbey Road",
                    "lines": []
-                 }
+                }
                 """;
 
         this.mockMvc.perform(
@@ -55,13 +48,21 @@ class BusStopControllerTest extends IntegrationTest {
                                 .content(requestBody))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().json(expectedResponse));
+                .andExpect(content().json(expectedResponseCreate));
 
-        List<BusStop> busStops = this.busStopRepository.findAll();
-        assertEquals(1, busStops.size());
-        BusStop createdBusStop = busStops.get(0);
-        assertEquals("BusStopName", createdBusStop.getName());
-        assertEquals(1L, createdBusStop.getId());
+        String expectedResponseGet = """
+                [
+                   {
+                     "id": 1,
+                     "name": "Abbey Road"
+                   }
+                 ]
+                """;
+        this.mockMvc.perform(
+                        get("/busstops"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json(expectedResponseGet));
 
     }
 
@@ -101,46 +102,30 @@ class BusStopControllerTest extends IntegrationTest {
                 .andExpect(content().json(expectedResponse));
 
 
-    }
-
-    @Test
-    @Sql("/data-test.sql")
-    void testDeleteBusStop() throws Exception {
-
-        this.mockMvc.perform(
-                        delete("/busstops/{busStopId}/", 8))
-                .andDo(print())
-                .andExpect(status().isOk());
-
-    }
-
-    @Test
-    @Sql("/data-test.sql")
-    void testGetBusStopDetail() throws Exception {
-
-        String expectedResponse = """
-                {
-                  "id": 1,
-                  "name": "Abbey Road",
-                  "lines": [
-                    {
-                      "id": 1,
-                      "name": "1"
-                    },
-                    {
-                      "id": 2,
-                      "name": "S65"
-                    }
-                  ]
-                }            
-                """;
+        // verify that result is persisted through multiple calls
         this.mockMvc.perform(
                         get("/busstops/{busStopId}/", 1))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json(expectedResponse));
 
+    }
 
+    @Test
+    @Sql("/data-test.sql")
+    void testDeleteBusStop() throws Exception {
+
+        int busStopId = 8;
+        this.mockMvc.perform(
+                        delete("/busstops/{busStopId}/", busStopId))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        // verify that result is actually deleted
+        this.mockMvc.perform(
+                        get("/busstops/{busStopId}/", busStopId))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 
 }
