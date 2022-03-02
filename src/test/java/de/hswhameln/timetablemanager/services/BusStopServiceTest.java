@@ -2,19 +2,19 @@ package de.hswhameln.timetablemanager.services;
 
 import de.hswhameln.timetablemanager.entities.BusStop;
 import de.hswhameln.timetablemanager.repositories.BusStopRepository;
+import de.hswhameln.timetablemanager.test.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.jdbc.Sql;
 
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-class BusStopServiceTest {
+class BusStopServiceTest extends UnitTest {
 
     private final BusStopRepository busStopRepository;
 
@@ -38,6 +38,7 @@ class BusStopServiceTest {
     }
 
     @Test
+    @Sql("/data-test.sql")
     void testGetBusStops() {
         int count = (int) this.busStopRepository.count();
         Collection<BusStop> busStops = this.objectUnderTest.getBusStops();
@@ -47,12 +48,14 @@ class BusStopServiceTest {
     }
 
     @Test
+    @Sql("/data-test.sql")
     void testGetBusStop() {
         BusStop busStop = this.objectUnderTest.getBusStop(1).orElseThrow();
         assertEquals("Abbey Road", busStop.getName());
     }
 
     @Test
+    @Sql("/data-test.sql")
     void testDeleteBusStop() {
         long targetId = 8;
         long countBefore = busStopRepository.count();
@@ -62,9 +65,11 @@ class BusStopServiceTest {
     }
 
     @Test
+    @Sql("/data-test.sql")
     void testModifyBusStop() {
         this.objectUnderTest.modifyBusStop(1L, "Rainy Road");
         BusStop newBusStop = this.busStopRepository.findById(1L).orElseThrow();
         assertEquals("Rainy Road", newBusStop.getName());
     }
+
 }

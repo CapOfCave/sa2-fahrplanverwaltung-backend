@@ -1,21 +1,18 @@
 package de.hswhameln.timetablemanager.services;
 
-import de.hswhameln.timetablemanager.entities.BusStop;
 import de.hswhameln.timetablemanager.entities.Line;
 import de.hswhameln.timetablemanager.repositories.LineRepository;
+import de.hswhameln.timetablemanager.test.UnitTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.jdbc.Sql;
 
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-class LineServiceTest {
+class LineServiceTest extends UnitTest {
 
     private final LineRepository lineRepository;
 
@@ -39,6 +36,7 @@ class LineServiceTest {
     }
 
     @Test
+    @Sql("/data-test.sql")
     void testGetLines() {
         int count = (int) this.lineRepository.count();
         Collection<Line> lines = this.objectUnderTest.getLines();
@@ -46,13 +44,16 @@ class LineServiceTest {
                 .hasSizeGreaterThan(1)
                 .hasSize(count);
     }
+
     @Test
+    @Sql("/data-test.sql")
     void testGetLine() {
         Line line = this.objectUnderTest.getLine(1).orElseThrow();
         assertEquals("1", line.getName());
     }
 
     @Test
+    @Sql("/data-test.sql")
     void testDeleteLine() {
         long countBefore = lineRepository.count();
         this.objectUnderTest.deleteLine(1);
@@ -61,6 +62,7 @@ class LineServiceTest {
     }
 
     @Test
+    @Sql("/data-test.sql")
     void testModifyLine() {
         this.objectUnderTest.modifyLine(1L, "N22");
         Line newLine = this.lineRepository.findById(1L).orElseThrow();

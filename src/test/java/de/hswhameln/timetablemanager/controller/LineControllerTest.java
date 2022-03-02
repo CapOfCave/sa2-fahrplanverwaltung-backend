@@ -1,6 +1,6 @@
 package de.hswhameln.timetablemanager.controller;
 
-import de.hswhameln.timetablemanager.IntegrationTest;
+import de.hswhameln.timetablemanager.test.IntegrationTest;
 import de.hswhameln.timetablemanager.entities.Line;
 import de.hswhameln.timetablemanager.repositories.LineRepository;
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,6 @@
 package de.hswhameln.timetablemanager.controller;
 
-import de.hswhameln.timetablemanager.IntegrationTest;
+import de.hswhameln.timetablemanager.test.IntegrationTest;
 import de.hswhameln.timetablemanager.entities.BusStop;
 import de.hswhameln.timetablemanager.repositories.BusStopRepository;
 import org.junit.jupiter.api.Test;
