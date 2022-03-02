@@ -1,10 +1,13 @@
 package de.hswhameln.timetablemanager.controller;
 
+import de.hswhameln.timetablemanager.businessobjects.BusStopScheduleBO;
 import de.hswhameln.timetablemanager.dto.requests.CreateBusStopRequest;
 import de.hswhameln.timetablemanager.dto.requests.ModifyBusStopRequest;
 import de.hswhameln.timetablemanager.dto.responses.BusStopDetailDto;
 import de.hswhameln.timetablemanager.dto.responses.BusStopOverviewDto;
+import de.hswhameln.timetablemanager.dto.responses.BusStopScheduleDto;
 import de.hswhameln.timetablemanager.entities.BusStop;
+import de.hswhameln.timetablemanager.mapping.BusStopScheduleToDtoMapper;
 import de.hswhameln.timetablemanager.mapping.BusStopToDtoMapper;
 import de.hswhameln.timetablemanager.services.BusStopService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +29,13 @@ public class BusStopController {
 
     private final BusStopService busStopService;
     private final BusStopToDtoMapper busStopToDtoMapper;
+    private final BusStopScheduleToDtoMapper busStopScheduleToDtoMapper;
 
     @Autowired
-    public BusStopController(BusStopService busStopService, BusStopToDtoMapper busStopToDtoMapper) {
+    public BusStopController(BusStopService busStopService, BusStopToDtoMapper busStopToDtoMapper, BusStopScheduleToDtoMapper busStopScheduleToDtoMapper) {
         this.busStopService = busStopService;
         this.busStopToDtoMapper = busStopToDtoMapper;
+        this.busStopScheduleToDtoMapper = busStopScheduleToDtoMapper;
     }
 
     @GetMapping
@@ -64,5 +69,11 @@ public class BusStopController {
     @DeleteMapping("/{busStopId}")
     public void deleteBusStop(@PathVariable long busStopId) {
         this.busStopService.deleteBusStop(busStopId);
+    }
+
+    @GetMapping("/{busStopId}/schedule")
+    public BusStopScheduleDto getBusStopSchedule(@PathVariable long busStopId) {
+        BusStopScheduleBO busStopSchedule = this.busStopService.getBusStopSchedule(busStopId);
+        return this.busStopScheduleToDtoMapper.mapToBusStopScheduleDto(busStopSchedule);
     }
 }
