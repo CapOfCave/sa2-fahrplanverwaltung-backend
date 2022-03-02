@@ -6,7 +6,6 @@ import de.hswhameln.timetablemanager.businessobjects.ScheduleBO;
 import de.hswhameln.timetablemanager.entities.BusStop;
 import de.hswhameln.timetablemanager.entities.Line;
 import de.hswhameln.timetablemanager.entities.LineStop;
-import de.hswhameln.timetablemanager.entities.Schedule;
 import de.hswhameln.timetablemanager.mapping.ScheduleToBoMapper;
 import de.hswhameln.timetablemanager.repositories.BusStopRepository;
 import de.hswhameln.timetablemanager.repositories.ScheduleRepository;
@@ -81,11 +80,10 @@ public class BusStopService {
     /**
      * Create all schedule entries caused by this schedule. Note that this may return multiple resulting values if the line crosses this bus stop multiple times.
      */
-    private List<BusStopScheduleEntryBO> getBusStopScheduleEntriesForSchedule(long busStopId, Schedule schedule) {
-        ScheduleBO scheduleBO = this.scheduleToBoMapper.enrichWithTargetDestination(schedule);
+    private List<BusStopScheduleEntryBO> getBusStopScheduleEntriesForSchedule(long busStopId, ScheduleBO schedule) {
         return getDurationsBySchedule(busStopId, schedule)
                 .stream()
-                .map(duration -> new BusStopScheduleEntryBO(scheduleBO, schedule.getStartTime().plus(duration)))
+                .map(duration -> new BusStopScheduleEntryBO(schedule, schedule.getStartTime().plus(duration)))
                 .toList();
     }
 
@@ -95,16 +93,16 @@ public class BusStopService {
      * This wil usually return a Collection of size 1 unless the schedule's line passes this bus stop multiple times within one schedule.
      *
      */
-    private Collection<Duration> getDurationsBySchedule(long busStopId, Schedule schedule) {
+    private Collection<Duration> getDurationsBySchedule(long busStopId, ScheduleBO schedule) {
         return schedule.isReverseDirection() ?
-                getDurationsByScheduleReverseDirection(busStopId, schedule) :
-                getDurationsByScheduleDefaultDirection(busStopId, schedule);
+                getLineStopDurationsReverseDirection(busStopId, schedule.getLine()) :
+                getLineStopDurationsDefaultDirection(busStopId, schedule.getLine());
     }
 
-    private Collection<Duration> getDurationsByScheduleDefaultDirection(long busStopId, Schedule schedule) {
+    private Collection<Duration> getLineStopDurationsDefaultDirection(long busStopId, Line line) {
         Collection<Duration> durations = new ArrayList<>();
         long secondsSinceStart = 0;
-        for (LineStop lineStop : schedule.getLine().getLineStops()) {
+        for (LineStop lineStop : line.getLineStops()) {
             if (lineStop.getBusStop().getId() == busStopId) {
                 durations.add(Duration.ofSeconds(secondsSinceStart));
             }
@@ -116,11 +114,11 @@ public class BusStopService {
         return durations;
     }
 
-    private Collection<Duration> getDurationsByScheduleReverseDirection(long busStopId, Schedule schedule) {
+    private Collection<Duration> getLineStopDurationsReverseDirection(long busStopId, Line line) {
         Collection<Duration> arrivals = new ArrayList<>();
 
         long secondsSinceStart = 0;
-        List<LineStop> lineStops = schedule.getLine().getLineStops();
+        List<LineStop> lineStops = line.getLineStops();
         for (int i = lineStops.size() - 1; i >= 0; i--) {
             LineStop lineStop = lineStops.get(i);
 
@@ -141,7 +139,7 @@ public class BusStopService {
     /**
      * Return all distinct schedules that this relate to this bus stop.
      */
-    private List<Schedule> getRelevantSchedules(BusStop busStop) {
+    private List<ScheduleBO> getRelevantSchedules(BusStop busStop) {
         List<Long> lineIds = busStop.getLineStops()
                 .stream()
                 .map(LineStop::getLine)
@@ -149,6 +147,9 @@ public class BusStopService {
                 .distinct()
                 .toList();
 
-        return this.scheduleRepository.findByLineIdIn(lineIds);
+        return this.scheduleRepository.findByLineIdIn(lineIds)
+                .stream()
+                .map(this.scheduleToBoMapper::enrichWithTargetDestination)
+                .toList();
     }
 }

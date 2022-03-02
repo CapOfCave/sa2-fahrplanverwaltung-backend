@@ -18,12 +18,15 @@ public class ScheduleBO {
 
     private LocalTime startTime;
 
+    private boolean reverseDirection;
+
     private BusStop finalDestination;
 
-    public ScheduleBO(long id, Line line, LocalTime startTime, BusStop finalDestination) {
+    public ScheduleBO(long id, Line line, LocalTime startTime, boolean reverseDirection, BusStop finalDestination) {
         this.id = id;
         this.line = line;
         this.startTime = startTime;
+        this.reverseDirection = reverseDirection;
         this.finalDestination = finalDestination;
     }
 
@@ -51,5 +54,9 @@ public class ScheduleBO {
                 ", startTime=" + startTime +
                 ", finalDestination=" + finalDestination +
                 '}';
+    }
+
+    public boolean isReverseDirection() {
+        return reverseDirection;
     }
 }

@@ -15,7 +15,7 @@ public class ScheduleToBoMapper {
 
     public ScheduleBO enrichWithTargetDestination(Schedule schedule) {
         Optional<BusStop> targetDestination = getTargetDestination(schedule.getLine(), schedule.isReverseDirection());
-        return new ScheduleBO(schedule.getId(), schedule.getLine(), schedule.getStartTime(), targetDestination.orElse(null));
+        return new ScheduleBO(schedule.getId(), schedule.getLine(), schedule.getStartTime(), schedule.isReverseDirection(), targetDestination.orElse(null));
     }
 
     private Optional<BusStop> getTargetDestination(Line line, boolean reverseDirection) {
