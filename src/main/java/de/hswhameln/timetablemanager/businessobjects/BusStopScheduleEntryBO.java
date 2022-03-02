@@ -19,4 +19,14 @@ public class BusStopScheduleEntryBO {
     public LocalTime getArrival() {
         return arrival;
     }
+
+    @Override
+    public String toString() {
+        return "BusStopScheduleEntryBO{" +
+                "schedule=" + schedule +
+                ", arrival=" + arrival +
+                '}';
+    }
+
+
 }

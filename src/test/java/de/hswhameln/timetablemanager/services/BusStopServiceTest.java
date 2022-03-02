@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 
+import javax.transaction.Transactional;
 import java.time.LocalTime;
 import java.util.Collection;
 
@@ -79,15 +80,23 @@ class BusStopServiceTest extends SpringAssistedUnitTest {
     void testGetBusStopScheduleDefaultDirection() {
         BusStopScheduleBO busStopSchedule = this.objectUnderTest.getBusStopSchedule(4L);
         assertEquals(4L, busStopSchedule.getBusStop().getId());
-        assertThat(busStopSchedule.getScheduleEntries()).hasSize(1).first()
-                .extracting(BusStopScheduleEntryBO::getSchedule)
-                .extracting(
-                        ScheduleBO::getId,
-                        ScheduleBO::getStartTime,
-                        schedule -> schedule.getFinalDestination().getName(),
-                        schedule -> schedule.getLine().getName()
-                )
-                .containsExactly(1L, LocalTime.of(6, 0), "Camp Street", "L1");
+        assertThat(busStopSchedule.getScheduleEntries())
+                .hasSize(1)
+                .first().satisfies(busStopScheduleEntryBO -> {
+                    assertThat(busStopScheduleEntryBO)
+                            .extracting(BusStopScheduleEntryBO::getSchedule)
+                            .extracting(
+                                    ScheduleBO::getId,
+                                    ScheduleBO::getStartTime,
+                                    schedule -> schedule.getFinalDestination().getName(),
+                                    schedule -> schedule.getLine().getName()
+                            )
+                            .containsExactly(1L, LocalTime.of(6, 0), "Camp Street", "L1");
+                    assertThat(busStopScheduleEntryBO)
+                            .extracting(BusStopScheduleEntryBO::getArrival)
+                            .isEqualTo(LocalTime.of(6, 1));
+                });
+
     }
 
     @Test
@@ -98,14 +107,69 @@ class BusStopServiceTest extends SpringAssistedUnitTest {
         assertEquals(busStopId, busStopSchedule.getBusStop().getId());
         assertThat(busStopSchedule.getScheduleEntries())
                 .hasSize(1)
-                .first()
-                .extracting(BusStopScheduleEntryBO::getSchedule)
-                .extracting(
-                        ScheduleBO::getId,
-                        ScheduleBO::getStartTime,
-                        schedule -> schedule.getFinalDestination().getName(),
-                        schedule -> schedule.getLine().getName()
-                )
-                .containsExactly(2L, LocalTime.of(11, 0), "Abbey Road", "L2");
+                .first().satisfies(busStopScheduleEntryBO -> {
+                    assertThat(busStopScheduleEntryBO)
+                            .extracting(BusStopScheduleEntryBO::getSchedule)
+                            .extracting(
+                                    ScheduleBO::getId,
+                                    ScheduleBO::getStartTime,
+                                    schedule -> schedule.getFinalDestination().getName(),
+                                    schedule -> schedule.getLine().getName()
+                            )
+                            .containsExactly(2L, LocalTime.of(11, 0), "Abbey Road", "L2");
+                    assertThat(busStopScheduleEntryBO)
+                            .extracting(BusStopScheduleEntryBO::getArrival)
+                            .isEqualTo(LocalTime.of(11, 2));
+                });
+    }
+
+    @Test
+    @Transactional
+    @Sql("/schedulesOverMidnight.sql")
+    void testGetBusStopScheduleDefaultDirectionCrossingMidnight() {
+        BusStopScheduleBO busStopSchedule = this.objectUnderTest.getBusStopSchedule(4L);
+        assertEquals(4L, busStopSchedule.getBusStop().getId());
+        assertThat(busStopSchedule.getScheduleEntries())
+                .hasSize(1)
+                .first().satisfies(busStopScheduleEntryBO -> {
+                    assertThat(busStopScheduleEntryBO)
+                            .extracting(BusStopScheduleEntryBO::getSchedule)
+                            .extracting(
+                                    ScheduleBO::getId,
+                                    ScheduleBO::getStartTime,
+                                    schedule -> schedule.getFinalDestination().getName(),
+                                    schedule -> schedule.getLine().getName()
+                            )
+                            .containsExactly(1L, LocalTime.of(22, 0), "Camp Street", "L1");
+                    assertThat(busStopScheduleEntryBO)
+                            .extracting(BusStopScheduleEntryBO::getArrival)
+                            // 3 AM on the day after the start of the ride (which is irrelevant here)
+                            .isEqualTo(LocalTime.of(3, 0));
+                });
+    }
+
+    @Test
+    @Transactional
+    @Sql("/schedulesOverMidnight.sql")
+    void testGetBusStopScheduleReverseDirectionCrossingMidnight() {
+        BusStopScheduleBO busStopSchedule = this.objectUnderTest.getBusStopSchedule(5L);
+        assertEquals(5L, busStopSchedule.getBusStop().getId());
+        assertThat(busStopSchedule.getScheduleEntries())
+                .hasSize(1)
+                .first().satisfies(busStopScheduleEntryBO -> {
+                    assertThat(busStopScheduleEntryBO)
+                            .extracting(BusStopScheduleEntryBO::getSchedule)
+                            .extracting(
+                                    ScheduleBO::getId,
+                                    ScheduleBO::getStartTime,
+                                    schedule -> schedule.getFinalDestination().getName(),
+                                    schedule -> schedule.getLine().getName()
+                            )
+                            .containsExactly(2L, LocalTime.of(21, 30), "Abbey Road", "L2");
+                    assertThat(busStopScheduleEntryBO)
+                            .extracting(BusStopScheduleEntryBO::getArrival)
+                            // 3 AM on the day after the start of the ride (which is irrelevant here)
+                            .isEqualTo(LocalTime.of(4, 30));
+                });
     }
 }

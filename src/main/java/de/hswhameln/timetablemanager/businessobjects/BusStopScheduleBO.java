@@ -20,4 +20,12 @@ public class BusStopScheduleBO {
     public Collection<BusStopScheduleEntryBO> getScheduleEntries() {
         return scheduleEntries;
     }
+
+    @Override
+    public String toString() {
+        return "BusStopScheduleBO{" +
+                "busStop=" + busStop +
+                ", scheduleEntries=" + scheduleEntries +
+                '}';
+    }
 }

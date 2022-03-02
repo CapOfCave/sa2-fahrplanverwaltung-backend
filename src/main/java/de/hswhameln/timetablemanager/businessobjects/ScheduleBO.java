@@ -42,4 +42,14 @@ public class ScheduleBO {
     public BusStop getFinalDestination() {
         return finalDestination;
     }
+
+    @Override
+    public String toString() {
+        return "ScheduleBO{" +
+                "id=" + id +
+                ", line=" + line +
+                ", startTime=" + startTime +
+                ", finalDestination=" + finalDestination +
+                '}';
+    }
 }

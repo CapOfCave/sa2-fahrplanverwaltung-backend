@@ -14,10 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,20 +61,18 @@ public class BusStopService {
         return this.busStopRepository.findById(id);
     }
 
+    /**
+     * Return all bus lines that stop at this bus stop combined with their arrival time
+     */
     @Transactional
     public BusStopScheduleBO getBusStopSchedule(long id) {
         BusStop busStop = this.getBusStop(id).orElseThrow();
 
         List<BusStopScheduleEntryBO> scheduleEntries = getRelevantSchedules(busStop)
                 .stream()
-                .map(schedule -> {
-                    ScheduleBO scheduleBO = this.scheduleToBoMapper.enrichWithTargetDestination(schedule);
-                    return getArrivalTimesBySchedule(id, schedule)
-                            .stream()
-                            .map(arrivalTime -> new BusStopScheduleEntryBO(scheduleBO, arrivalTime))
-                            .toList();
-                })
+                .map(schedule -> getBusStopScheduleEntriesForSchedule(id, schedule))
                 .flatMap(Collection::stream)
+                .sorted(Comparator.comparing(BusStopScheduleEntryBO::getArrival))
                 .toList();
 
         return new BusStopScheduleBO(busStop, scheduleEntries);
@@ -83,44 +81,57 @@ public class BusStopService {
     /**
      * Create all schedule entries caused by this schedule. Note that this may return multiple resulting values if the line crosses this bus stop multiple times.
      */
-    private Collection<LocalTime> getArrivalTimesBySchedule(long busStopId, Schedule schedule) {
-        return schedule.isReverseDirection() ?
-                getArrivalTimesByScheduleReverseDirection(busStopId, schedule) :
-                getArrivalTimesByScheduleDefaultDirection(busStopId, schedule);
+    private List<BusStopScheduleEntryBO> getBusStopScheduleEntriesForSchedule(long busStopId, Schedule schedule) {
+        ScheduleBO scheduleBO = this.scheduleToBoMapper.enrichWithTargetDestination(schedule);
+        return getDurationsBySchedule(busStopId, schedule)
+                .stream()
+                .map(duration -> new BusStopScheduleEntryBO(scheduleBO, schedule.getStartTime().plus(duration)))
+                .toList();
     }
 
-    private Collection<LocalTime> getArrivalTimesByScheduleDefaultDirection(long busStopId, Schedule schedule) {
-        Collection<LocalTime> arrivals = new ArrayList<>();
-        int secondsSinceStart = 0;
+    /**
+     * For a single schedule, return the time it takes between the start of the ride and the arrival at this bus station.
+     * <p>
+     * This wil usually return a Collection of size 1 unless the schedule's line passes this bus stop multiple times within one schedule.
+     *
+     */
+    private Collection<Duration> getDurationsBySchedule(long busStopId, Schedule schedule) {
+        return schedule.isReverseDirection() ?
+                getDurationsByScheduleReverseDirection(busStopId, schedule) :
+                getDurationsByScheduleDefaultDirection(busStopId, schedule);
+    }
+
+    private Collection<Duration> getDurationsByScheduleDefaultDirection(long busStopId, Schedule schedule) {
+        Collection<Duration> durations = new ArrayList<>();
+        long secondsSinceStart = 0;
         for (LineStop lineStop : schedule.getLine().getLineStops()) {
             if (lineStop.getBusStop().getId() == busStopId) {
-                LocalTime arrival = schedule.getStartTime().plus(secondsSinceStart, ChronoUnit.SECONDS);
-                arrivals.add(arrival);
+                durations.add(Duration.ofSeconds(secondsSinceStart));
             }
             Integer secondsToNextStop = lineStop.getSecondsToNextStop();
             if (secondsToNextStop != null) {
                 secondsSinceStart += secondsToNextStop;
             }
         }
-        return arrivals;
+        return durations;
     }
 
-    private Collection<LocalTime> getArrivalTimesByScheduleReverseDirection(long busStopId, Schedule schedule) {
-        Collection<LocalTime> arrivals = new ArrayList<>();
+    private Collection<Duration> getDurationsByScheduleReverseDirection(long busStopId, Schedule schedule) {
+        Collection<Duration> arrivals = new ArrayList<>();
 
-        int secondsSinceStart = 0;
+        long secondsSinceStart = 0;
         List<LineStop> lineStops = schedule.getLine().getLineStops();
         for (int i = lineStops.size() - 1; i >= 0; i--) {
             LineStop lineStop = lineStops.get(i);
 
             Integer secondsToNextStop = lineStop.getSecondsToNextStop();
-            if (secondsToNextStop != null) {
+            // ignore the secondsToNextStop of the last stop (= the first in reverse order) since it doesn't make sense
+            if (secondsToNextStop != null && i != lineStops.size() - 1) {
                 secondsSinceStart += secondsToNextStop;
             }
 
             if (lineStop.getBusStop().getId() == busStopId) {
-                LocalTime arrival = schedule.getStartTime().plus(secondsSinceStart, ChronoUnit.SECONDS);
-                arrivals.add(arrival);
+                arrivals.add(Duration.ofSeconds(secondsSinceStart));
             }
 
         }
