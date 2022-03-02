@@ -6,12 +6,10 @@ import de.hswhameln.timetablemanager.businessobjects.ScheduleBO;
 import de.hswhameln.timetablemanager.entities.BusStop;
 import de.hswhameln.timetablemanager.repositories.BusStopRepository;
 import de.hswhameln.timetablemanager.test.UnitTest;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Collection;
 
@@ -81,17 +79,15 @@ class BusStopServiceTest extends UnitTest {
     void testGetBusStopScheduleDefaultDirection() {
         BusStopScheduleBO busStopSchedule = this.objectUnderTest.getBusStopSchedule(4L);
         assertEquals(4L, busStopSchedule.getBusStop().getId());
-        assertThat(busStopSchedule.getScheduleEntries()).hasSize(1).first().satisfies(scheduleEntry -> {
-            assertThat(scheduleEntry)
-                    .extracting(BusStopScheduleEntryBO::getSchedule)
-                    .extracting(
-                            ScheduleBO::getId,
-                            ScheduleBO::getStartTime,
-                            schedule -> schedule.getFinalDestination().getName(),
-                            schedule -> schedule.getLine().getName()
-                    )
-                    .containsExactly(1L, LocalTime.of(6, 0), "Camp Street", "L1");
-        });
+        assertThat(busStopSchedule.getScheduleEntries()).hasSize(1).first()
+                .extracting(BusStopScheduleEntryBO::getSchedule)
+                .extracting(
+                        ScheduleBO::getId,
+                        ScheduleBO::getStartTime,
+                        schedule -> schedule.getFinalDestination().getName(),
+                        schedule -> schedule.getLine().getName()
+                )
+                .containsExactly(1L, LocalTime.of(6, 0), "Camp Street", "L1");
     }
 
     @Test
@@ -100,16 +96,16 @@ class BusStopServiceTest extends UnitTest {
         long busStopId = 5L;
         BusStopScheduleBO busStopSchedule = this.objectUnderTest.getBusStopSchedule(busStopId);
         assertEquals(busStopId, busStopSchedule.getBusStop().getId());
-        assertThat(busStopSchedule.getScheduleEntries()).hasSize(1).first().satisfies(scheduleEntry -> {
-            assertThat(scheduleEntry)
-                    .extracting(BusStopScheduleEntryBO::getSchedule)
-                    .extracting(
-                            ScheduleBO::getId,
-                            ScheduleBO::getStartTime,
-                            schedule -> schedule.getFinalDestination().getName(),
-                            schedule -> schedule.getLine().getName()
-                    )
-                    .containsExactly(2L, LocalTime.of(11, 0), "Abbey Road", "L2");
-        });
+        assertThat(busStopSchedule.getScheduleEntries())
+                .hasSize(1)
+                .first()
+                .extracting(BusStopScheduleEntryBO::getSchedule)
+                .extracting(
+                        ScheduleBO::getId,
+                        ScheduleBO::getStartTime,
+                        schedule -> schedule.getFinalDestination().getName(),
+                        schedule -> schedule.getLine().getName()
+                )
+                .containsExactly(2L, LocalTime.of(11, 0), "Abbey Road", "L2");
     }
 }

@@ -20,3 +20,5 @@ VALUES (1, 1, 0, 60),
        (2, 3, 2, null),
        (2, 2, 1, 30);
 
+INSERT INTO SCHEDULE (line_id, reverse_direction, start_time)
+VALUES (1, false, '14:35');
