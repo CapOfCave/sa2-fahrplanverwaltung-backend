@@ -1,0 +1,4 @@
+DROP TABLE SCHEDULE if exists;
+DROP TABLE LINE_STOP if exists;
+DROP TABLE BUS_STOP if exists;
+DROP TABLE LINE if exists;
