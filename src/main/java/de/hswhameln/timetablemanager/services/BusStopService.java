@@ -13,6 +13,7 @@ import de.hswhameln.timetablemanager.repositories.ScheduleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -61,6 +62,7 @@ public class BusStopService {
         return this.busStopRepository.findById(id);
     }
 
+    @Transactional
     public BusStopScheduleBO getBusStopSchedule(long id) {
         BusStop busStop = this.getBusStop(id).orElseThrow();
 
