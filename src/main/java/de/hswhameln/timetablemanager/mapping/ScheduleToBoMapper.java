@@ -23,7 +23,7 @@ public class ScheduleToBoMapper {
         if (lineStops.isEmpty()) {
             return Optional.empty();
         }
-        LineStop targetDestination = reverseDirection ? lineStops.get(lineStops.size() - 1) : lineStops.get(0);
+        LineStop targetDestination = reverseDirection ? lineStops.get(0) : lineStops.get(lineStops.size() - 1);
         return Optional.of(targetDestination.getBusStop());
     }
 }

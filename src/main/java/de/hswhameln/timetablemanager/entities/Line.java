@@ -50,6 +50,10 @@ public class Line {
         return this.lineStops;
     }
 
+    public void setLineStops(List<LineStop> lineStops) {
+        this.lineStops = lineStops;
+    }
+
     @Override
     public String toString() {
         return "Line{" +
