@@ -83,12 +83,9 @@ public class BusStopService {
      * Create all schedule entries caused by this schedule. Note that this may return multiple resulting values if the line crosses this bus stop multiple times.
      */
     private Collection<LocalTime> getArrivalTimesBySchedule(long busStopId, Schedule schedule) {
-        if (schedule.isReverseDirection()) {
-            System.out.println("Reverse direction not yet implemented. Ignoring schedule");
-            return Collections.emptyList();
-        }
-
-        return getArrivalTimesByScheduleDefaultDirection(busStopId, schedule);
+        return schedule.isReverseDirection() ?
+                getArrivalTimesByScheduleReverseDirection(busStopId, schedule) :
+                getArrivalTimesByScheduleDefaultDirection(busStopId, schedule);
     }
 
     private Collection<LocalTime> getArrivalTimesByScheduleDefaultDirection(long busStopId, Schedule schedule) {
@@ -106,7 +103,29 @@ public class BusStopService {
         }
         return arrivals;
     }
-    
+
+    private Collection<LocalTime> getArrivalTimesByScheduleReverseDirection(long busStopId, Schedule schedule) {
+        Collection<LocalTime> arrivals = new ArrayList<>();
+
+        int secondsSinceStart = 0;
+        List<LineStop> lineStops = schedule.getLine().getLineStops();
+        for (int i = lineStops.size() - 1; i >= 0; i--) {
+            LineStop lineStop = lineStops.get(i);
+
+            Integer secondsToNextStop = lineStop.getSecondsToNextStop();
+            if (secondsToNextStop != null) {
+                secondsSinceStart += secondsToNextStop;
+            }
+
+            if (lineStop.getBusStop().getId() == busStopId) {
+                LocalTime arrival = schedule.getStartTime().plus(secondsSinceStart, ChronoUnit.SECONDS);
+                arrivals.add(arrival);
+            }
+
+        }
+        return arrivals;
+    }
+
     /**
      * Return all distinct schedules that this relate to this bus stop.
      * @param busStop
