@@ -10,7 +10,6 @@ public class LineStopToDtoMapper {
     public LineStopOverviewDto mapToLineStopOverviewDto(LineStop lineStop) {
         return new LineStopOverviewDto(
                 lineStop.getId(),
-                lineStop.getIndex(),
                 lineStop.getSecondsToNextStop(),
                 lineStop.getBusStop().getId(),
                 lineStop.getBusStop().getName());

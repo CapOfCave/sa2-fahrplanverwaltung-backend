@@ -14,8 +14,8 @@ VALUES ('1'),
 
 INSERT INTO LINE_STOP (line_id, bus_stop_id, index, seconds_to_next_stop)
 VALUES (1, 1, 0, 60),
-       (1, 4, 2, 120),
-       (1, 5, 3, null),
+       (1, 4, 1, 120),
+       (1, 5, 2, null),
        (2, 1, 0, 60),
        (2, 3, 2, null),
        (2, 2, 1, 30);

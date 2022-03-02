@@ -2,7 +2,7 @@ package de.hswhameln.timetablemanager.services;
 
 import de.hswhameln.timetablemanager.entities.Line;
 import de.hswhameln.timetablemanager.repositories.LineRepository;
-import de.hswhameln.timetablemanager.test.UnitTest;
+import de.hswhameln.timetablemanager.test.SpringAssistedUnitTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
@@ -12,7 +12,7 @@ import java.util.Collection;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class LineServiceTest extends UnitTest {
+class LineServiceTest extends SpringAssistedUnitTest {
 
     private final LineRepository lineRepository;
 

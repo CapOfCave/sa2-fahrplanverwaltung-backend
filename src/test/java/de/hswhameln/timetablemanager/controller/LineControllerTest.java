@@ -88,21 +88,18 @@ class LineControllerTest extends IntegrationTest {
                     "lineStops": [
                       {
                         "id": 1,
-                        "index": 0,
                         "secondsToNextStop": 60,
                         "busStopId": 1,
                         "busStopName": "Abbey Road"
                       },
                       {
                         "id": 2,
-                        "index": 2,
                         "secondsToNextStop": 120,
                         "busStopId": 4,
                         "busStopName": "Dean Avenue"
                       },
                       {
                         "id": 3,
-                        "index": 3,
                         "secondsToNextStop": null,
                         "busStopId": 5,
                         "busStopName": "East Hills Avenue"
@@ -128,21 +125,18 @@ class LineControllerTest extends IntegrationTest {
                    "lineStops": [
                      {
                        "id": 1,
-                       "index": 0,
                        "secondsToNextStop": 60,
                        "busStopId": 1,
                        "busStopName": "Abbey Road"
                      },
                      {
                        "id": 2,
-                       "index": 2,
                        "secondsToNextStop": 120,
                        "busStopId": 4,
                        "busStopName": "Dean Avenue"
                      },
                      {
                        "id": 3,
-                       "index": 3,
                        "secondsToNextStop": null,
                        "busStopId": 5,
                        "busStopName": "East Hills Avenue"

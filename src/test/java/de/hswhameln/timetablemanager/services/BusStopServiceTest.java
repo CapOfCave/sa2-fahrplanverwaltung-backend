@@ -5,7 +5,7 @@ import de.hswhameln.timetablemanager.businessobjects.BusStopScheduleEntryBO;
 import de.hswhameln.timetablemanager.businessobjects.ScheduleBO;
 import de.hswhameln.timetablemanager.entities.BusStop;
 import de.hswhameln.timetablemanager.repositories.BusStopRepository;
-import de.hswhameln.timetablemanager.test.UnitTest;
+import de.hswhameln.timetablemanager.test.SpringAssistedUnitTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
@@ -16,7 +16,7 @@ import java.util.Collection;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class BusStopServiceTest extends UnitTest {
+class BusStopServiceTest extends SpringAssistedUnitTest {
 
     private final BusStopRepository busStopRepository;
 
