@@ -2,9 +2,13 @@ package de.hswhameln.timetablemanager.mapping;
 
 import de.hswhameln.timetablemanager.businessobjects.BusStopScheduleBO;
 import de.hswhameln.timetablemanager.businessobjects.BusStopScheduleEntryBO;
+import de.hswhameln.timetablemanager.businessobjects.BusStopTimetableBO;
+import de.hswhameln.timetablemanager.businessobjects.BusStopTimetableEntryBO;
 import de.hswhameln.timetablemanager.dto.responses.BusStopOverviewDto;
 import de.hswhameln.timetablemanager.dto.responses.BusStopScheduleDto;
 import de.hswhameln.timetablemanager.dto.responses.BusStopScheduleEntryDto;
+import de.hswhameln.timetablemanager.dto.responses.BusStopTimetableDto;
+import de.hswhameln.timetablemanager.dto.responses.BusStopTimetableEntryDto;
 import de.hswhameln.timetablemanager.dto.responses.ScheduleOverviewDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,5 +39,19 @@ public class BusStopScheduleToDtoMapper {
     private BusStopScheduleEntryDto mapToBusStopScheduleEntryDto(BusStopScheduleEntryBO busStopScheduleEntry) {
         ScheduleOverviewDto scheduleOverviewDto = this.scheduleToDtoMapper.mapToScheduleOverviewDto(busStopScheduleEntry.getSchedule());
         return new BusStopScheduleEntryDto(scheduleOverviewDto, busStopScheduleEntry.getArrival());
+    }
+
+    public BusStopTimetableDto mapToBusStopTimetableDto(BusStopTimetableBO busStopTimetable) {
+        BusStopOverviewDto busStopOverviewDto = this.busStopToDtoMapper.mapToBusStopOverviewDto(busStopTimetable.getBusStop());
+        List<BusStopTimetableEntryDto> timetableEntries = busStopTimetable.getTimetableEntries()
+                .stream()
+                .map(this::mapToBusStopTimetableEntryDto)
+                .toList();
+        return new BusStopTimetableDto(busStopOverviewDto, timetableEntries);
+    }
+
+    private BusStopTimetableEntryDto mapToBusStopTimetableEntryDto(BusStopTimetableEntryBO busStopTimetableEntry) {
+        ScheduleOverviewDto scheduleOverviewDto = this.scheduleToDtoMapper.mapToScheduleOverviewDto(busStopTimetableEntry.getScheduleBO());
+        return new BusStopTimetableEntryDto(scheduleOverviewDto, busStopTimetableEntry.getArrival());
     }
 }

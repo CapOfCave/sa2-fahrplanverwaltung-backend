@@ -1,16 +1,19 @@
 package de.hswhameln.timetablemanager.controller;
 
 import de.hswhameln.timetablemanager.businessobjects.BusStopScheduleBO;
+import de.hswhameln.timetablemanager.businessobjects.BusStopTimetableBO;
 import de.hswhameln.timetablemanager.dto.requests.CreateBusStopRequest;
 import de.hswhameln.timetablemanager.dto.requests.ModifyBusStopRequest;
 import de.hswhameln.timetablemanager.dto.responses.BusStopDetailDto;
 import de.hswhameln.timetablemanager.dto.responses.BusStopOverviewDto;
 import de.hswhameln.timetablemanager.dto.responses.BusStopScheduleDto;
+import de.hswhameln.timetablemanager.dto.responses.BusStopTimetableDto;
 import de.hswhameln.timetablemanager.entities.BusStop;
 import de.hswhameln.timetablemanager.mapping.BusStopScheduleToDtoMapper;
 import de.hswhameln.timetablemanager.mapping.BusStopToDtoMapper;
 import de.hswhameln.timetablemanager.services.BusStopService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,8 +22,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Collection;
 
 @RestController
@@ -75,5 +81,15 @@ public class BusStopController {
     public BusStopScheduleDto getBusStopSchedule(@PathVariable long busStopId) {
         BusStopScheduleBO busStopSchedule = this.busStopService.getBusStopSchedule(busStopId);
         return this.busStopScheduleToDtoMapper.mapToBusStopScheduleDto(busStopSchedule);
+    }
+
+    @GetMapping("/{busStopId}/timetable")
+    public BusStopTimetableDto getTimetable(
+            @PathVariable long busStopId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
+            @RequestParam long durationSeconds
+    ) {
+        BusStopTimetableBO timetable = this.busStopService.getTimetable(busStopId, startTime, Duration.ofSeconds(durationSeconds));
+        return this.busStopScheduleToDtoMapper.mapToBusStopTimetableDto(timetable);
     }
 }

@@ -2,6 +2,8 @@ package de.hswhameln.timetablemanager.services;
 
 import de.hswhameln.timetablemanager.businessobjects.BusStopScheduleBO;
 import de.hswhameln.timetablemanager.businessobjects.BusStopScheduleEntryBO;
+import de.hswhameln.timetablemanager.businessobjects.BusStopTimetableBO;
+import de.hswhameln.timetablemanager.businessobjects.BusStopTimetableEntryBO;
 import de.hswhameln.timetablemanager.businessobjects.ScheduleBO;
 import de.hswhameln.timetablemanager.entities.BusStop;
 import de.hswhameln.timetablemanager.entities.Line;
@@ -14,11 +16,15 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Service
 public class BusStopService {
@@ -61,20 +67,59 @@ public class BusStopService {
     }
 
     /**
-     * Return all bus lines that stop at this bus stop combined with their arrival time
+     * Return all bus lines that stop at this bus stop combined with their arrival time (in order of arrival)
      */
     @Transactional
     public BusStopScheduleBO getBusStopSchedule(long id) {
         BusStop busStop = this.getBusStop(id).orElseThrow();
 
-        List<BusStopScheduleEntryBO> scheduleEntries = getRelevantSchedules(busStop)
+        List<BusStopScheduleEntryBO> busStopScheduleEntries = getBusStopScheduleEntries(busStop);
+
+        return new BusStopScheduleBO(busStop, busStopScheduleEntries);
+    }
+
+    @Transactional
+    public BusStopTimetableBO getTimetable(long busStopId, LocalDateTime startTime, Duration duration) {
+        BusStop busStop = this.getBusStop(busStopId).orElseThrow();
+        List<BusStopScheduleEntryBO> busStopScheduleEntries = getBusStopScheduleEntries(busStop);
+
+
+        record DayAndScheduleEntries(int dayOffset, List<BusStopScheduleEntryBO> busStopScheduleEntries) {
+            Stream<BusStopTimetableEntryBO> toDayAndScheduleEntryStream(LocalDateTime startTime) {
+                return this.busStopScheduleEntries.stream()
+                        .map(busStopScheduleEntryBO ->
+                                new BusStopTimetableEntryBO(busStopScheduleEntryBO.getSchedule(), toLocalDateTime(startTime, this.dayOffset, busStopScheduleEntryBO.getArrival())));
+            }
+            private static LocalDateTime toLocalDateTime(LocalDateTime startTime, int dayOffset, LocalTime timeOfDay) {
+                if (timeOfDay.isAfter(startTime.toLocalTime())) {
+                    return LocalDateTime.of(startTime.toLocalDate(), timeOfDay).plusDays(dayOffset);
+                } else {
+                    return LocalDateTime.of(startTime.toLocalDate(), timeOfDay).plusDays(dayOffset - 1);
+                }
+            }
+        }
+
+        List<BusStopTimetableEntryBO> allDayAndScheduleEntries = IntStream.iterate(0, dayOffset -> dayOffset + 1)
+                .mapToObj(dayOffset -> new DayAndScheduleEntries(dayOffset, busStopScheduleEntries))
+                .flatMap(dayAndScheduleEntries -> dayAndScheduleEntries.toDayAndScheduleEntryStream(startTime))
+                .dropWhile(dayAndScheduleEntry -> dayAndScheduleEntry.getArrival().isBefore(startTime))
+                .takeWhile(dayAndScheduleEntry -> !dayAndScheduleEntry.getArrival().isAfter(startTime.plus(duration)))
+                .toList();
+        return new BusStopTimetableBO(busStop, allDayAndScheduleEntries);
+
+    }
+
+    /**
+     * Return all Times a bus will arrive at this stop in a given day, in order of arrival time
+     */
+    private List<BusStopScheduleEntryBO> getBusStopScheduleEntries(BusStop busStop) {
+
+        return getRelevantSchedules(busStop)
                 .stream()
-                .map(schedule -> getBusStopScheduleEntriesForSchedule(id, schedule))
+                .map(schedule -> getBusStopScheduleEntriesForSchedule(busStop.getId(), schedule))
                 .flatMap(Collection::stream)
                 .sorted(Comparator.comparing(BusStopScheduleEntryBO::getArrival))
                 .toList();
-
-        return new BusStopScheduleBO(busStop, scheduleEntries);
     }
 
     /**
@@ -91,7 +136,6 @@ public class BusStopService {
      * For a single schedule, return the time it takes between the start of the ride and the arrival at this bus station.
      * <p>
      * This wil usually return a Collection of size 1 unless the schedule's line passes this bus stop multiple times within one schedule.
-     *
      */
     private Collection<Duration> getDurationsBySchedule(long busStopId, ScheduleBO schedule) {
         return schedule.isReverseDirection() ?
@@ -152,4 +196,6 @@ public class BusStopService {
                 .map(this.scheduleToBoMapper::enrichWithTargetDestination)
                 .toList();
     }
+
+
 }
