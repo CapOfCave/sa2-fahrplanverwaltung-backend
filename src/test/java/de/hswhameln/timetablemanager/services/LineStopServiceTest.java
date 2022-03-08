@@ -48,6 +48,14 @@ class LineStopServiceTest extends SpringAssistedUnitTest {
                 .containsExactly(0, 60, 2L, 1L);
     }
 
+    @Test
+    @Sql("/busline-with-duplicate-stop.sql")
+    void testGetBusStopsWithDuplicate() {
+        List<LineStop> busStops = this.lineStopService.getBusStops(1L);
+        assertThat(busStops).hasSize(4).map(LineStop::getIndex).containsExactly(0, 1, 2, 3);
+        assertThat(busStops.get(0).getBusStop()).isSameAs(busStops.get(3).getBusStop());
+    }
+
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2, 3})
     @Sql("/data-test.sql")
@@ -59,6 +67,18 @@ class LineStopServiceTest extends SpringAssistedUnitTest {
         assertThat(busStops.get(targetIndex))
                 .extracting(LineStop::getSecondsToNextStop, lineStop -> lineStop.getLine().getId(), lineStop -> lineStop.getBusStop().getId())
                 .containsExactly(37, 1L, 2L);
+    }
+
+    @Test
+    @Sql("/busline-with-duplicate-stop.sql")
+    void testAddBusStopWithDuplicates() {
+        int targetIndex = 4;
+        this.lineStopService.addBusStop(1L, 1L, 37, targetIndex);
+        List<LineStop> busStops = this.lineStopService.getBusStops(1L);
+        assertThat(busStops).hasSize(5).map(LineStop::getIndex).containsExactly(0, 1, 2, 3, 4);
+        assertThat(busStops.get(targetIndex))
+                .extracting(LineStop::getSecondsToNextStop, lineStop -> lineStop.getLine().getId(), lineStop -> lineStop.getBusStop().getId())
+                .containsExactly(37, 1L, 1L);
     }
 
     @ParameterizedTest
@@ -84,6 +104,19 @@ class LineStopServiceTest extends SpringAssistedUnitTest {
         assertThat(busStops).hasSize(2).map(LineStop::getIndex).containsExactly(0, 1);
         Long[] expectedLineStops = LongStream.range(1, 4).filter(i -> i != lineStopIdToRemove).boxed().toArray(Long[]::new);
         assertThat(busStops).map(LineStop::getId).containsExactly(expectedLineStops);
+
+        // all bus stops still exist
+        assertThat(this.busStopRepository.findAll()).map(BusStop::getId).contains(1L, 4L, 5L);
+    }
+
+    @Test
+    @Sql("/busline-with-duplicate-stop.sql")
+    void testRemoveDuplicateBusStop() throws Exception {
+        int lineStopIdToRemove = 4;
+        this.lineStopService.removeBusStop(1L, lineStopIdToRemove);
+        List<LineStop> busStops = this.lineStopService.getBusStops(1L);
+        assertThat(busStops).hasSize(3).map(LineStop::getIndex).containsExactly(0, 1, 2);
+        assertThat(busStops).map(LineStop::getId).containsExactly(1L, 2L, 3L);
 
         // all bus stops still exist
         assertThat(this.busStopRepository.findAll()).map(BusStop::getId).contains(1L, 4L, 5L);
