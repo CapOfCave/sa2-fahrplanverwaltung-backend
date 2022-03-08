@@ -1,6 +1,7 @@
 package de.hswhameln.timetablemanager.services;
 
 import de.hswhameln.timetablemanager.entities.Line;
+import de.hswhameln.timetablemanager.exceptions.NameAlreadyTakenException;
 import de.hswhameln.timetablemanager.repositories.LineRepository;
 import de.hswhameln.timetablemanager.test.SpringAssistedUnitTest;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LineServiceTest extends SpringAssistedUnitTest {
 
@@ -25,7 +27,7 @@ class LineServiceTest extends SpringAssistedUnitTest {
     }
 
     @Test
-    void testCreateLine() {
+    void testCreateLine() throws NameAlreadyTakenException {
         long countBefore = this.lineRepository.count();
         String name = "77";
         Line returnedBusStop = this.objectUnderTest.createLine(name);
@@ -33,6 +35,15 @@ class LineServiceTest extends SpringAssistedUnitTest {
         Line actualLine = lineRepository.findById(returnedBusStop.getId()).orElseThrow();
         assertEquals(name, actualLine.getName());
         assertEquals(countBefore + 1, lineRepository.count());
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testCreateLineNameTaken() {
+        long countBefore = this.lineRepository.count();
+        String name = "S65"; // already taken
+        assertThrows(NameAlreadyTakenException.class, () -> this.objectUnderTest.createLine(name));
+        assertEquals(countBefore, lineRepository.count());
     }
 
     @Test

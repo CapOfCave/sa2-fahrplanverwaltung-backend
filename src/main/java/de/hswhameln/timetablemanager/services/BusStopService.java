@@ -8,6 +8,8 @@ import de.hswhameln.timetablemanager.businessobjects.ScheduleBO;
 import de.hswhameln.timetablemanager.entities.BusStop;
 import de.hswhameln.timetablemanager.entities.Line;
 import de.hswhameln.timetablemanager.entities.LineStop;
+import de.hswhameln.timetablemanager.exceptions.InvalidArgumentException;
+import de.hswhameln.timetablemanager.exceptions.NameAlreadyTakenException;
 import de.hswhameln.timetablemanager.mapping.ScheduleToBoMapper;
 import de.hswhameln.timetablemanager.repositories.BusStopRepository;
 import de.hswhameln.timetablemanager.repositories.ScheduleRepository;
@@ -42,8 +44,10 @@ public class BusStopService {
         this.scheduleToBoMapper = scheduleToBoMapper;
     }
 
-    public BusStop createBusStop(String name) {
-        // TODO check if name is unique
+    public BusStop createBusStop(String name) throws NameAlreadyTakenException {
+        if (this.busStopRepository.existsByName(name)) {
+            throw new NameAlreadyTakenException(name);
+        }
         var busStop = new BusStop(name);
         return this.busStopRepository.save(busStop);
     }

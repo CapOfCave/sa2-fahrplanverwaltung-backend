@@ -5,6 +5,7 @@ import de.hswhameln.timetablemanager.dto.requests.ModifyLineRequest;
 import de.hswhameln.timetablemanager.dto.responses.LineDetailDto;
 import de.hswhameln.timetablemanager.dto.responses.LineOverviewDto;
 import de.hswhameln.timetablemanager.entities.Line;
+import de.hswhameln.timetablemanager.exceptions.NameAlreadyTakenException;
 import de.hswhameln.timetablemanager.mapping.LineToDtoMapper;
 import de.hswhameln.timetablemanager.services.LineService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,7 @@ public class LineController {
     }
 
     @PostMapping
-    public LineDetailDto createLine(@RequestBody CreateLineRequest createLineRequest) {
+    public LineDetailDto createLine(@RequestBody CreateLineRequest createLineRequest) throws NameAlreadyTakenException {
         Line line = this.lineService.createLine(createLineRequest.getName());
         return this.lineToDtoMapper.mapToLineDetailDto(line);
     }

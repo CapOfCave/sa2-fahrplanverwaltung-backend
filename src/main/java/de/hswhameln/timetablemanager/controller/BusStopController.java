@@ -9,6 +9,8 @@ import de.hswhameln.timetablemanager.dto.responses.BusStopOverviewDto;
 import de.hswhameln.timetablemanager.dto.responses.BusStopScheduleDto;
 import de.hswhameln.timetablemanager.dto.responses.BusStopTimetableDto;
 import de.hswhameln.timetablemanager.entities.BusStop;
+import de.hswhameln.timetablemanager.exceptions.InvalidArgumentException;
+import de.hswhameln.timetablemanager.exceptions.NameAlreadyTakenException;
 import de.hswhameln.timetablemanager.mapping.BusStopScheduleToDtoMapper;
 import de.hswhameln.timetablemanager.mapping.BusStopToDtoMapper;
 import de.hswhameln.timetablemanager.services.BusStopService;
@@ -53,7 +55,7 @@ public class BusStopController {
     }
 
     @PostMapping
-    public BusStopDetailDto createBusStop(@RequestBody CreateBusStopRequest createBusStopRequest) {
+    public BusStopDetailDto createBusStop(@RequestBody CreateBusStopRequest createBusStopRequest) throws NameAlreadyTakenException {
         BusStop busStop = this.busStopService.createBusStop(createBusStopRequest.getName());
         return this.busStopToDtoMapper.mapToBusStopDetailDto(busStop);
     }

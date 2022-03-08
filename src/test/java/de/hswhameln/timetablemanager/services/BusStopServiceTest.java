@@ -4,6 +4,8 @@ import de.hswhameln.timetablemanager.businessobjects.BusStopScheduleBO;
 import de.hswhameln.timetablemanager.businessobjects.BusStopScheduleEntryBO;
 import de.hswhameln.timetablemanager.businessobjects.ScheduleBO;
 import de.hswhameln.timetablemanager.entities.BusStop;
+import de.hswhameln.timetablemanager.exceptions.InvalidArgumentException;
+import de.hswhameln.timetablemanager.exceptions.NameAlreadyTakenException;
 import de.hswhameln.timetablemanager.repositories.BusStopRepository;
 import de.hswhameln.timetablemanager.test.SpringAssistedUnitTest;
 import org.junit.jupiter.api.Test;
@@ -16,6 +18,7 @@ import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class BusStopServiceTest extends SpringAssistedUnitTest {
 
@@ -30,7 +33,7 @@ class BusStopServiceTest extends SpringAssistedUnitTest {
     }
 
     @Test
-    void testCreateBusStop() {
+    void testCreateBusStop() throws NameAlreadyTakenException {
         long countBefore = busStopRepository.count();
         String name = "5th Avenue";
         BusStop returnedBusStop = this.objectUnderTest.createBusStop(name);
@@ -38,6 +41,15 @@ class BusStopServiceTest extends SpringAssistedUnitTest {
         BusStop actualBusStop = busStopRepository.findById(returnedBusStop.getId()).orElseThrow();
         assertEquals(name, actualBusStop.getName());
         assertEquals(countBefore + 1, busStopRepository.count());
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testCreateBusStopNameTaken() {
+        long countBefore = busStopRepository.count();
+        assertThrows(NameAlreadyTakenException.class, () -> this.objectUnderTest.createBusStop("Abbey Road"));
+        assertEquals(countBefore, busStopRepository.count());
+
     }
 
     @Test

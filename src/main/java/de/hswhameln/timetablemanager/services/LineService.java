@@ -1,6 +1,8 @@
 package de.hswhameln.timetablemanager.services;
 
 import de.hswhameln.timetablemanager.entities.Line;
+import de.hswhameln.timetablemanager.exceptions.InvalidArgumentException;
+import de.hswhameln.timetablemanager.exceptions.NameAlreadyTakenException;
 import de.hswhameln.timetablemanager.repositories.LineRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,8 +21,10 @@ public class LineService {
         this.lineRepository = lineRepository;
     }
 
-    public Line createLine(String name) {
-        // TODO exception handling
+    public Line createLine(String name) throws NameAlreadyTakenException {
+        if (this.lineRepository.existsByName(name)) {
+            throw new NameAlreadyTakenException(name);
+        }
         var line = new Line(name);
         return this.lineRepository.save(line);
     }

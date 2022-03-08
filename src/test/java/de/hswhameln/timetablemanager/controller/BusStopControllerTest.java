@@ -66,6 +66,28 @@ class BusStopControllerTest extends IntegrationTest {
 
     @Test
     @Sql("/data-test.sql")
+    void testCreateBusStopAlreadyExists() throws Exception {
+
+        String requestBody = """
+                {
+                    "name": "Abbey Road"
+                }
+                """;
+
+        String expectedResponseCreate = "The value 'Abbey Road' is invalid for argument 'name'. Reason: Name is already taken.";
+
+        this.mockMvc.perform(
+                        post("/busstops/")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isConflict())
+                .andExpect(content().string(expectedResponseCreate));
+
+    }
+
+    @Test
+    @Sql("/data-test.sql")
     void testRenameBusStop() throws Exception {
 
         String requestBody = """
