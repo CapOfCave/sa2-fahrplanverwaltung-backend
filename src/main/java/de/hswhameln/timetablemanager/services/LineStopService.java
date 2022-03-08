@@ -9,6 +9,7 @@ import de.hswhameln.timetablemanager.repositories.LineStopRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
 
@@ -28,10 +29,11 @@ public class LineStopService {
     }
 
 
-    public Collection<LineStop> getBusStops(long id) {
-        return this.lineStopRepository.findByLineIdOrderByIndex(id);
+    public List<LineStop> getBusStops(long lineId) {
+        return this.lineStopRepository.findByLineIdOrderByIndex(lineId);
     }
 
+    @Transactional
     public void addBusStop(long lineId, long busStopId, Integer secondsToNextStop, int targetIndex) {
         var line = this.lineRepository.getById(lineId);
         var busStop = this.busStopRepository.getById(busStopId);
@@ -41,7 +43,7 @@ public class LineStopService {
         insertLineStop(line, lineStop, targetIndex);
     }
 
-
+    @Transactional
     public void removeBusStop(long lineId, long lineStopId) throws NotFoundException {
         var line = this.lineRepository.findById(lineId).orElseThrow(() -> new NotFoundException("Line with ID " + lineId + " does not exist." ));
         var lineStop = this.lineStopRepository.findById(lineStopId).orElseThrow(() -> new NotFoundException("LineStop with ID " + lineStopId + " does not exist." ));
