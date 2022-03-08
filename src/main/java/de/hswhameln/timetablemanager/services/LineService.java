@@ -1,7 +1,7 @@
 package de.hswhameln.timetablemanager.services;
 
 import de.hswhameln.timetablemanager.entities.Line;
-import de.hswhameln.timetablemanager.exceptions.InvalidArgumentException;
+import de.hswhameln.timetablemanager.exceptions.LineNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.NameAlreadyTakenException;
 import de.hswhameln.timetablemanager.repositories.LineRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Optional;
 
 @Service
 public class LineService {
@@ -33,18 +32,21 @@ public class LineService {
         return new ArrayList<>(this.lineRepository.findAll());
     }
 
-    public void deleteLine(long id) {
+    public void deleteLine(long id) throws LineNotFoundException {
+        if (!this.lineRepository.existsById(id)) {
+            throw new LineNotFoundException("lineId", id);
+        }
         this.lineRepository.deleteById(id);
     }
 
-    public Line modifyLine(long id, String name) {
-        Line line = this.lineRepository.findById(id).orElseThrow();
+    public Line modifyLine(long id, String name) throws LineNotFoundException {
+        Line line = getLine(id);
         line.setName(name);
         return this.lineRepository.save(line);
     }
 
-    public Optional<Line> getLine(long id) {
-        return this.lineRepository.findById(id);
+    public Line getLine(long id) throws LineNotFoundException {
+        return this.lineRepository.findById(id).orElseThrow(() -> new LineNotFoundException("lineId", id));
     }
 
 }

@@ -5,10 +5,13 @@ import de.hswhameln.timetablemanager.dto.requests.ModifyLineRequest;
 import de.hswhameln.timetablemanager.dto.responses.LineDetailDto;
 import de.hswhameln.timetablemanager.dto.responses.LineOverviewDto;
 import de.hswhameln.timetablemanager.entities.Line;
+import de.hswhameln.timetablemanager.exceptions.LineNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.NameAlreadyTakenException;
+import de.hswhameln.timetablemanager.exceptions.NotFoundException;
 import de.hswhameln.timetablemanager.mapping.LineToDtoMapper;
 import de.hswhameln.timetablemanager.services.LineService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
@@ -49,21 +53,20 @@ public class LineController {
     }
 
     @GetMapping("/{lineId}")
-    public ResponseEntity<LineDetailDto> getLine(@PathVariable long lineId) {
-        return this.lineService.getLine(lineId)
-                .map(this.lineToDtoMapper::mapToLineDetailDto)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public LineDetailDto getLine(@PathVariable long lineId) throws LineNotFoundException {
+        Line line = this.lineService.getLine(lineId);
+        return this.lineToDtoMapper.mapToLineDetailDto(line);
     }
 
     @PatchMapping("/{lineId}")
-    public LineDetailDto modifyLine(@PathVariable long lineId, @RequestBody ModifyLineRequest modifyLineRequest) {
+    public LineDetailDto modifyLine(@PathVariable long lineId, @RequestBody ModifyLineRequest modifyLineRequest) throws NotFoundException {
         Line line =  this.lineService.modifyLine(lineId, modifyLineRequest.getName());
         return this.lineToDtoMapper.mapToLineDetailDto(line);
     }
 
     @DeleteMapping("/{lineId}")
-    public void deleteLine(@PathVariable long lineId) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteLine(@PathVariable long lineId) throws NotFoundException {
         this.lineService.deleteLine(lineId);
     }
 }

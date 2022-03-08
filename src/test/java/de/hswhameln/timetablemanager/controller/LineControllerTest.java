@@ -172,18 +172,75 @@ class LineControllerTest extends IntegrationTest {
 
     @Test
     @Sql("/data-test.sql")
+    void testRenameLineNonexistentLine() throws Exception {
+
+        String requestBody = """
+                {
+                    "name": "newName"
+                }
+                """;
+
+        String expectedResponse = "Line with lineId '7777' was not found. Reason: It does not exist.";
+
+        // verify that rename is persisted
+
+        this.mockMvc.perform(
+                        patch("/lines/{lineId}/", 7777)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(expectedResponse));
+
+    }
+
+    @Test
+    @Sql("/data-test.sql")
     void testDeleteLine() throws Exception {
         int lineId = 2;
         this.mockMvc.perform(
                         delete("/lines/{lineId}/", lineId))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         this.mockMvc.perform(
                         get("/lines/{lineId}/", lineId))
                 .andDo(print())
                 .andExpect(status().isNotFound());
+    }
 
+    @Test
+    @Sql("/data-test.sql")
+    void testDeleteLineLineDoesNotExist() throws Exception {
+        int lineId = 7777;
+        String expectedResponse = "Line with lineId '7777' was not found. Reason: It does not exist.";
+        this.mockMvc.perform(
+                        delete("/lines/{lineId}/", lineId))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(expectedResponse));
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testGetLineLineDoesNotExist() throws Exception {
+        int lineId = 7777;
+        String expectedResponse = "Line with lineId '7777' was not found. Reason: It does not exist.";
+        this.mockMvc.perform(
+                        get("/lines/{lineId}/", lineId))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(expectedResponse));
+    }
+
+    @Test
+    void testGetLinesNoContent() throws Exception {
+        String expectedResponse = "[]";
+        this.mockMvc.perform(
+                        get("/lines/"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json(expectedResponse));
     }
 
 }

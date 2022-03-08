@@ -1,6 +1,7 @@
 package de.hswhameln.timetablemanager.services;
 
 import de.hswhameln.timetablemanager.entities.Line;
+import de.hswhameln.timetablemanager.exceptions.LineNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.NameAlreadyTakenException;
 import de.hswhameln.timetablemanager.repositories.LineRepository;
 import de.hswhameln.timetablemanager.test.SpringAssistedUnitTest;
@@ -12,7 +13,9 @@ import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LineServiceTest extends SpringAssistedUnitTest {
 
@@ -57,15 +60,28 @@ class LineServiceTest extends SpringAssistedUnitTest {
     }
 
     @Test
-    @Sql("/data-test.sql")
-    void testGetLine() {
-        Line line = this.objectUnderTest.getLine(1).orElseThrow();
-        assertEquals("1", line.getName());
+    void testGetLinesEmpty() {
+        Collection<Line> lines = this.objectUnderTest.getLines();
+        assertTrue(lines.isEmpty());
     }
 
     @Test
     @Sql("/data-test.sql")
-    void testDeleteLine() {
+    void testGetLine() throws LineNotFoundException {
+        Line line = this.objectUnderTest.getLine(1);
+        assertEquals("1", line.getName());
+    }
+
+
+    @Test
+    @Sql("/data-test.sql")
+    void testGetLineNonexistentLine() {
+        assertThrows(LineNotFoundException.class, () -> this.objectUnderTest.getLine(7777));
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testDeleteLine() throws LineNotFoundException {
         long countBefore = lineRepository.count();
         this.objectUnderTest.deleteLine(1);
         assertEquals(countBefore - 1, this.lineRepository.count());
@@ -74,9 +90,27 @@ class LineServiceTest extends SpringAssistedUnitTest {
 
     @Test
     @Sql("/data-test.sql")
-    void testModifyLine() {
-        this.objectUnderTest.modifyLine(1L, "N22");
+    void testDeleteLineLineDoesNotExist() {
+        long countBefore = lineRepository.count();
+        assertThrows(LineNotFoundException.class, () -> this.objectUnderTest.deleteLine(7777));
+
+        assertEquals(countBefore, this.lineRepository.count());
+        assertThat(this.lineRepository.findById(7777L)).isEmpty();
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testModifyLine() throws LineNotFoundException {
+        Line returnedLine = this.objectUnderTest.modifyLine(1L, "N22");
+        assertEquals("N22", returnedLine.getName());
+
         Line newLine = this.lineRepository.findById(1L).orElseThrow();
         assertEquals("N22", newLine.getName());
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testModifyLineLineDoesNotExist() {
+        assertThrows(LineNotFoundException.class, () -> this.objectUnderTest.modifyLine(7777L, "N22"));
     }
 }
