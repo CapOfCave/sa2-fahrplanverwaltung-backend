@@ -5,6 +5,7 @@ import de.hswhameln.timetablemanager.entities.Line;
 import de.hswhameln.timetablemanager.entities.Schedule;
 import de.hswhameln.timetablemanager.exceptions.LineNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.NotFoundException;
+import de.hswhameln.timetablemanager.exceptions.ScheduleNotFoundException;
 import de.hswhameln.timetablemanager.mapping.ScheduleToBoMapper;
 import de.hswhameln.timetablemanager.repositories.LineRepository;
 import de.hswhameln.timetablemanager.repositories.ScheduleRepository;
@@ -36,6 +37,19 @@ public class ScheduleService {
         return this.scheduleToBoMapper.enrichWithTargetDestination(actualSchedule);
     }
 
+    public ScheduleBO modifySchedule(long scheduleId, LocalTime startTime, Boolean reverseDirection) throws ScheduleNotFoundException {
+        Schedule schedule = this.scheduleRepository.findById(scheduleId).orElseThrow(() -> new ScheduleNotFoundException("scheduleId", scheduleId));
+        if (startTime != null) {
+            schedule.setStartTime(startTime);
+
+        }
+        if (reverseDirection != null) {
+            schedule.setReverseDirection(reverseDirection);
+        }
+        Schedule savedSchedule = this.scheduleRepository.save(schedule);
+        return this.scheduleToBoMapper.enrichWithTargetDestination(savedSchedule);
+    }
+
     public Collection<ScheduleBO> getSchedules() {
         return this.scheduleRepository.findAll()
                 .stream()
@@ -48,4 +62,6 @@ public class ScheduleService {
         // TODO check integrity
         this.scheduleRepository.deleteById(scheduleId);
     }
+
+
 }

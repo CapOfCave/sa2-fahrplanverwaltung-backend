@@ -2,6 +2,7 @@ package de.hswhameln.timetablemanager.controller;
 
 import de.hswhameln.timetablemanager.businessobjects.ScheduleBO;
 import de.hswhameln.timetablemanager.dto.requests.CreateScheduleRequest;
+import de.hswhameln.timetablemanager.dto.requests.ModifyScheduleRequest;
 import de.hswhameln.timetablemanager.dto.responses.ScheduleOverviewDto;
 import de.hswhameln.timetablemanager.exceptions.NotFoundException;
 import de.hswhameln.timetablemanager.mapping.ScheduleToDtoMapper;
@@ -9,8 +10,10 @@ import de.hswhameln.timetablemanager.services.ScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,5 +50,11 @@ public class ScheduleController {
     @DeleteMapping("/{scheduleId}")
     public void deleteSchedule(@PathVariable long scheduleId) {
         this.scheduleService.deleteSchedule(scheduleId);
+    }
+
+    @PatchMapping("/{scheduleId}")
+    public ScheduleOverviewDto modifySchedule(@PathVariable long scheduleId, @RequestBody ModifyScheduleRequest modifyScheduleRequest) throws NotFoundException {
+        ScheduleBO schedule = this.scheduleService.modifySchedule(scheduleId, modifyScheduleRequest.getStartTime(), modifyScheduleRequest.getReverseDirection());
+        return this.scheduleToDtoMapper.mapToScheduleOverviewDto(schedule);
     }
 }

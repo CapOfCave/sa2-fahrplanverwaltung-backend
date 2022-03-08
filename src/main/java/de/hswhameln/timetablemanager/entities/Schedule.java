@@ -53,4 +53,12 @@ public class Schedule {
     public boolean isReverseDirection() {
         return reverseDirection;
     }
+
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setReverseDirection(boolean reverseDirection) {
+        this.reverseDirection = reverseDirection;
+    }
 }
