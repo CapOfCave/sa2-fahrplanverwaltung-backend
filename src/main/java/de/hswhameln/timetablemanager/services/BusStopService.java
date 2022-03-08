@@ -8,7 +8,7 @@ import de.hswhameln.timetablemanager.businessobjects.ScheduleBO;
 import de.hswhameln.timetablemanager.entities.BusStop;
 import de.hswhameln.timetablemanager.entities.Line;
 import de.hswhameln.timetablemanager.entities.LineStop;
-import de.hswhameln.timetablemanager.exceptions.InvalidArgumentException;
+import de.hswhameln.timetablemanager.exceptions.BusStopNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.NameAlreadyTakenException;
 import de.hswhameln.timetablemanager.mapping.ScheduleToBoMapper;
 import de.hswhameln.timetablemanager.repositories.BusStopRepository;
@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -56,26 +55,29 @@ public class BusStopService {
         return new ArrayList<>(this.busStopRepository.findAll());
     }
 
-    public void deleteBusStop(long id) {
+    public void deleteBusStop(long id) throws BusStopNotFoundException {
+        if (!this.busStopRepository.existsById(id)) {
+            throw new BusStopNotFoundException("busStopId", id);
+        }
         this.busStopRepository.deleteById(id);
     }
 
-    public BusStop modifyBusStop(long id, String name) {
-        BusStop busStop = this.busStopRepository.findById(id).orElseThrow();
+    public BusStop modifyBusStop(long id, String name) throws BusStopNotFoundException {
+        BusStop busStop = getBusStop(id);
         busStop.setName(name);
         return this.busStopRepository.save(busStop);
     }
 
-    public Optional<BusStop> getBusStop(long id) {
-        return this.busStopRepository.findById(id);
+    public BusStop getBusStop(long id) throws BusStopNotFoundException {
+        return this.busStopRepository.findById(id).orElseThrow(() -> new BusStopNotFoundException("busStopId", id));
     }
 
     /**
      * Return all bus lines that stop at this bus stop combined with their arrival time (in order of arrival)
      */
     @Transactional
-    public BusStopScheduleBO getBusStopSchedule(long id) {
-        BusStop busStop = this.getBusStop(id).orElseThrow();
+    public BusStopScheduleBO getBusStopSchedule(long id) throws BusStopNotFoundException {
+        BusStop busStop = this.getBusStop(id);
 
         List<BusStopScheduleEntryBO> busStopScheduleEntries = getBusStopScheduleEntries(busStop);
 
@@ -83,8 +85,8 @@ public class BusStopService {
     }
 
     @Transactional
-    public BusStopTimetableBO getTimetable(long busStopId, LocalDateTime startTime, Duration duration) {
-        BusStop busStop = this.getBusStop(busStopId).orElseThrow();
+    public BusStopTimetableBO getTimetable(long busStopId, LocalDateTime startTime, Duration duration) throws BusStopNotFoundException {
+        BusStop busStop = this.getBusStop(busStopId);
         List<BusStopScheduleEntryBO> busStopScheduleEntries = getBusStopScheduleEntries(busStop);
 
 
@@ -94,6 +96,7 @@ public class BusStopService {
                         .map(busStopScheduleEntryBO ->
                                 new BusStopTimetableEntryBO(busStopScheduleEntryBO.getSchedule(), toLocalDateTime(startTime, this.dayOffset, busStopScheduleEntryBO.getArrival())));
             }
+
             private static LocalDateTime toLocalDateTime(LocalDateTime startTime, int dayOffset, LocalTime timeOfDay) {
                 if (timeOfDay.isAfter(startTime.toLocalTime())) {
                     return LocalDateTime.of(startTime.toLocalDate(), timeOfDay).plusDays(dayOffset);

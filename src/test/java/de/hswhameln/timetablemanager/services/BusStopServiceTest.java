@@ -4,7 +4,7 @@ import de.hswhameln.timetablemanager.businessobjects.BusStopScheduleBO;
 import de.hswhameln.timetablemanager.businessobjects.BusStopScheduleEntryBO;
 import de.hswhameln.timetablemanager.businessobjects.ScheduleBO;
 import de.hswhameln.timetablemanager.entities.BusStop;
-import de.hswhameln.timetablemanager.exceptions.InvalidArgumentException;
+import de.hswhameln.timetablemanager.exceptions.BusStopNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.NameAlreadyTakenException;
 import de.hswhameln.timetablemanager.repositories.BusStopRepository;
 import de.hswhameln.timetablemanager.test.SpringAssistedUnitTest;
@@ -13,12 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 
 import javax.transaction.Transactional;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BusStopServiceTest extends SpringAssistedUnitTest {
 
@@ -63,15 +66,27 @@ class BusStopServiceTest extends SpringAssistedUnitTest {
     }
 
     @Test
+    void testGetBusStopsEmpty() {
+        Collection<BusStop> busStops = this.objectUnderTest.getBusStops();
+        assertTrue(busStops.isEmpty());
+    }
+
+    @Test
     @Sql("/data-test.sql")
-    void testGetBusStop() {
-        BusStop busStop = this.objectUnderTest.getBusStop(1).orElseThrow();
+    void testGetBusStop() throws BusStopNotFoundException {
+        BusStop busStop = this.objectUnderTest.getBusStop(1);
         assertEquals("Abbey Road", busStop.getName());
     }
 
     @Test
     @Sql("/data-test.sql")
-    void testDeleteBusStop() {
+    void testGetBusStopNonExistent() {
+        assertThrows(BusStopNotFoundException.class, () -> this.objectUnderTest.getBusStop(7777L));
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testDeleteBusStop() throws BusStopNotFoundException {
         long targetId = 8;
         long countBefore = busStopRepository.count();
         this.objectUnderTest.deleteBusStop(targetId);
@@ -81,15 +96,35 @@ class BusStopServiceTest extends SpringAssistedUnitTest {
 
     @Test
     @Sql("/data-test.sql")
-    void testModifyBusStop() {
+    void testDeleteBusStopNonExistent() {
+        long targetId = 7777;
+        assertThrows(BusStopNotFoundException.class, () -> this.objectUnderTest.deleteBusStop(targetId));
+        assertThat(this.busStopRepository.findById(targetId)).isEmpty();
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testModifyBusStop() throws BusStopNotFoundException {
         this.objectUnderTest.modifyBusStop(1L, "Rainy Road");
         BusStop newBusStop = this.busStopRepository.findById(1L).orElseThrow();
         assertEquals("Rainy Road", newBusStop.getName());
     }
 
     @Test
+    @Sql("/data-test.sql")
+    void testModifyBusStopNonExistent() {
+        assertThrows(BusStopNotFoundException.class, () -> this.objectUnderTest.modifyBusStop(7777L, "Rainy Road"));
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testGetBusScheduleStopNonExistent() {
+        assertThrows(BusStopNotFoundException.class, () -> this.objectUnderTest.getBusStopSchedule(7777L));
+    }
+
+    @Test
     @Sql("/getRelevantSchedulesData.sql")
-    void testGetBusStopScheduleDefaultDirection() {
+    void testGetBusStopScheduleDefaultDirection() throws BusStopNotFoundException {
         BusStopScheduleBO busStopSchedule = this.objectUnderTest.getBusStopSchedule(4L);
         assertEquals(4L, busStopSchedule.getBusStop().getId());
         assertThat(busStopSchedule.getScheduleEntries())
@@ -113,7 +148,7 @@ class BusStopServiceTest extends SpringAssistedUnitTest {
 
     @Test
     @Sql("/getRelevantSchedulesData.sql")
-    void testGetBusStopScheduleReverseDirection() {
+    void testGetBusStopScheduleReverseDirection() throws BusStopNotFoundException {
         long busStopId = 5L;
         BusStopScheduleBO busStopSchedule = this.objectUnderTest.getBusStopSchedule(busStopId);
         assertEquals(busStopId, busStopSchedule.getBusStop().getId());
@@ -138,7 +173,7 @@ class BusStopServiceTest extends SpringAssistedUnitTest {
     @Test
     @Transactional
     @Sql("/schedulesOverMidnight.sql")
-    void testGetBusStopScheduleDefaultDirectionCrossingMidnight() {
+    void testGetBusStopScheduleDefaultDirectionCrossingMidnight() throws BusStopNotFoundException {
         BusStopScheduleBO busStopSchedule = this.objectUnderTest.getBusStopSchedule(4L);
         assertEquals(4L, busStopSchedule.getBusStop().getId());
         assertThat(busStopSchedule.getScheduleEntries())
@@ -163,7 +198,7 @@ class BusStopServiceTest extends SpringAssistedUnitTest {
     @Test
     @Transactional
     @Sql("/schedulesOverMidnight.sql")
-    void testGetBusStopScheduleReverseDirectionCrossingMidnight() {
+    void testGetBusStopScheduleReverseDirectionCrossingMidnight() throws BusStopNotFoundException {
         BusStopScheduleBO busStopSchedule = this.objectUnderTest.getBusStopSchedule(5L);
         assertEquals(5L, busStopSchedule.getBusStop().getId());
         assertThat(busStopSchedule.getScheduleEntries())
@@ -183,5 +218,11 @@ class BusStopServiceTest extends SpringAssistedUnitTest {
                             // 3 AM on the day after the start of the ride (which is irrelevant here)
                             .isEqualTo(LocalTime.of(4, 30));
                 });
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testGetBusStopTimetableNonExistent() {
+        assertThrows(BusStopNotFoundException.class, () -> this.objectUnderTest.getTimetable(7777L, LocalDateTime.of(2022, 1, 1, 1, 1), Duration.ZERO));
     }
 }

@@ -133,6 +133,28 @@ class BusStopControllerTest extends IntegrationTest {
 
     @Test
     @Sql("/data-test.sql")
+    void testRenameBusStopNonExistent() throws Exception {
+
+        String requestBody = """
+                {
+                    "name": "newName"
+                }
+                """;
+
+        String expectedResponse = "BusStop with busStopId '7777' was not found. Reason: It does not exist.";
+
+        this.mockMvc.perform(
+                        patch("/busstops/{busStopId}/", 7777)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(expectedResponse));
+
+    }
+
+    @Test
+    @Sql("/data-test.sql")
     void testDeleteBusStop() throws Exception {
 
         int busStopId = 8;
@@ -146,6 +168,61 @@ class BusStopControllerTest extends IntegrationTest {
                         get("/busstops/{busStopId}/", busStopId))
                 .andDo(print())
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testDeleteBusStopNonExistent() throws Exception {
+
+        String expectedResponse = "BusStop with busStopId '7777' was not found. Reason: It does not exist.";
+        int busStopId = 7777;
+        this.mockMvc.perform(
+                        delete("/busstops/{busStopId}/", busStopId))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(expectedResponse));
+
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testGetBusStopNonExistent() throws Exception {
+
+        String expectedResponse = "BusStop with busStopId '7777' was not found. Reason: It does not exist.";
+        int busStopId = 7777;
+        this.mockMvc.perform(get("/busstops/{busStopId}/", busStopId))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(expectedResponse));
+
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testGetBusStopScheduleNonExistent() throws Exception {
+
+        String expectedResponse = "BusStop with busStopId '7777' was not found. Reason: It does not exist.";
+        int busStopId = 7777;
+        this.mockMvc.perform(get("/busstops/{busStopId}/schedule", busStopId))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(expectedResponse));
+
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testGetTimetableNonExistent() throws Exception {
+
+        String expectedResponse = "BusStop with busStopId '7777' was not found. Reason: It does not exist.";
+        int busStopId = 7777;
+        this.mockMvc.perform(get("/busstops/{busStopId}/timetable", busStopId)
+                        .param("startTime", "2022-03-08T22:04")
+                        .param("durationSeconds", "9999"))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(expectedResponse));
+
     }
 
 }

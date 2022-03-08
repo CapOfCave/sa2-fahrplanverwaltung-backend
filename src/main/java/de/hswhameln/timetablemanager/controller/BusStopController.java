@@ -9,14 +9,13 @@ import de.hswhameln.timetablemanager.dto.responses.BusStopOverviewDto;
 import de.hswhameln.timetablemanager.dto.responses.BusStopScheduleDto;
 import de.hswhameln.timetablemanager.dto.responses.BusStopTimetableDto;
 import de.hswhameln.timetablemanager.entities.BusStop;
-import de.hswhameln.timetablemanager.exceptions.InvalidArgumentException;
+import de.hswhameln.timetablemanager.exceptions.BusStopNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.NameAlreadyTakenException;
 import de.hswhameln.timetablemanager.mapping.BusStopScheduleToDtoMapper;
 import de.hswhameln.timetablemanager.mapping.BusStopToDtoMapper;
 import de.hswhameln.timetablemanager.services.BusStopService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -61,26 +60,24 @@ public class BusStopController {
     }
 
     @PatchMapping("/{busStopId}")
-    public BusStopDetailDto modifyBusStop(@PathVariable long busStopId, @RequestBody ModifyBusStopRequest modifyBusStopRequest) {
+    public BusStopDetailDto modifyBusStop(@PathVariable long busStopId, @RequestBody ModifyBusStopRequest modifyBusStopRequest) throws BusStopNotFoundException {
         BusStop busStop = this.busStopService.modifyBusStop(busStopId, modifyBusStopRequest.getName());
         return this.busStopToDtoMapper.mapToBusStopDetailDto(busStop);
     }
 
     @GetMapping("/{busStopId}")
-    public ResponseEntity<BusStopDetailDto> getBusStop(@PathVariable long busStopId) {
-        return this.busStopService.getBusStop(busStopId)
-                .map(this.busStopToDtoMapper::mapToBusStopDetailDto)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public BusStopDetailDto getBusStop(@PathVariable long busStopId) throws BusStopNotFoundException {
+        BusStop busStop = this.busStopService.getBusStop(busStopId);
+        return this.busStopToDtoMapper.mapToBusStopDetailDto(busStop);
     }
 
     @DeleteMapping("/{busStopId}")
-    public void deleteBusStop(@PathVariable long busStopId) {
+    public void deleteBusStop(@PathVariable long busStopId) throws BusStopNotFoundException {
         this.busStopService.deleteBusStop(busStopId);
     }
 
     @GetMapping("/{busStopId}/schedule")
-    public BusStopScheduleDto getBusStopSchedule(@PathVariable long busStopId) {
+    public BusStopScheduleDto getBusStopSchedule(@PathVariable long busStopId) throws BusStopNotFoundException {
         BusStopScheduleBO busStopSchedule = this.busStopService.getBusStopSchedule(busStopId);
         return this.busStopScheduleToDtoMapper.mapToBusStopScheduleDto(busStopSchedule);
     }
@@ -90,7 +87,7 @@ public class BusStopController {
             @PathVariable long busStopId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startTime,
             @RequestParam long durationSeconds
-    ) {
+    ) throws BusStopNotFoundException {
         BusStopTimetableBO timetable = this.busStopService.getTimetable(busStopId, startTime, Duration.ofSeconds(durationSeconds));
         return this.busStopScheduleToDtoMapper.mapToBusStopTimetableDto(timetable);
     }
