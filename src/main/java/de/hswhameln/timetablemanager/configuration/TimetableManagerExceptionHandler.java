@@ -1,6 +1,7 @@
 package de.hswhameln.timetablemanager.configuration;
 
 import de.hswhameln.timetablemanager.exceptions.InvalidArgumentException;
+import de.hswhameln.timetablemanager.exceptions.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,8 +15,15 @@ public class TimetableManagerExceptionHandler extends ResponseEntityExceptionHan
     @ExceptionHandler(InvalidArgumentException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
-    protected String handleInvalidArgument(InvalidArgumentException exception) {
+    protected String handleInvalidArgumentException(InvalidArgumentException exception) {
         return exception.getMessage();
 
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    protected String handleNotFoundException(NotFoundException exception) {
+        return exception.getMessage();
     }
 }

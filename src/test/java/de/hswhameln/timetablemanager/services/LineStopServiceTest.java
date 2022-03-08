@@ -2,6 +2,9 @@ package de.hswhameln.timetablemanager.services;
 
 import de.hswhameln.timetablemanager.entities.BusStop;
 import de.hswhameln.timetablemanager.entities.LineStop;
+import de.hswhameln.timetablemanager.exceptions.BusStopNotFoundException;
+import de.hswhameln.timetablemanager.exceptions.LineNotFoundException;
+import de.hswhameln.timetablemanager.exceptions.LineStopNotFoundException;
 import de.hswhameln.timetablemanager.repositories.BusStopRepository;
 import de.hswhameln.timetablemanager.test.SpringAssistedUnitTest;
 import org.junit.jupiter.api.Test;
@@ -15,6 +18,7 @@ import java.util.List;
 import java.util.stream.LongStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LineStopServiceTest extends SpringAssistedUnitTest {
 
@@ -30,7 +34,7 @@ class LineStopServiceTest extends SpringAssistedUnitTest {
 
     @Test
     @Sql("/data-test.sql")
-    void testGetBusStops() {
+    void testGetBusStops() throws LineNotFoundException {
         Collection<LineStop> busStops = this.lineStopService.getBusStops(1L);
         assertThat(busStops).hasSize(3).map(LineStop::getIndex).containsExactly(0, 1, 2);
         assertThat(busStops).first()
@@ -40,7 +44,7 @@ class LineStopServiceTest extends SpringAssistedUnitTest {
 
     @Test
     @Sql("/data-test.sql")
-    void testGetBusStopsSortedByIndex() {
+    void testGetBusStopsSortedByIndex() throws LineNotFoundException {
         Collection<LineStop> busStops = this.lineStopService.getBusStops(2L);
         assertThat(busStops).hasSize(3).map(LineStop::getIndex).containsExactly(0, 1, 2);
         assertThat(busStops).first()
@@ -49,8 +53,14 @@ class LineStopServiceTest extends SpringAssistedUnitTest {
     }
 
     @Test
+    @Sql("/data-test.sql")
+    void testGetBusStopsNonexistentLine() {
+        assertThrows(LineNotFoundException.class, () -> this.lineStopService.getBusStops(7777L));
+    }
+
+    @Test
     @Sql("/busline-with-duplicate-stop.sql")
-    void testGetBusStopsWithDuplicate() {
+    void testGetBusStopsWithDuplicate() throws LineNotFoundException {
         List<LineStop> busStops = this.lineStopService.getBusStops(1L);
         assertThat(busStops).hasSize(4).map(LineStop::getIndex).containsExactly(0, 1, 2, 3);
         assertThat(busStops.get(0).getBusStop()).isSameAs(busStops.get(3).getBusStop());
@@ -59,7 +69,7 @@ class LineStopServiceTest extends SpringAssistedUnitTest {
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2, 3})
     @Sql("/data-test.sql")
-    void testAddBusStop(int targetIndex) {
+    void testAddBusStop(int targetIndex) throws BusStopNotFoundException, LineNotFoundException {
 
         this.lineStopService.addBusStop(1L, 2L, 37, targetIndex);
         List<LineStop> busStops = this.lineStopService.getBusStops(1L);
@@ -71,7 +81,7 @@ class LineStopServiceTest extends SpringAssistedUnitTest {
 
     @Test
     @Sql("/busline-with-duplicate-stop.sql")
-    void testAddBusStopWithDuplicates() {
+    void testAddBusStopWithDuplicates() throws BusStopNotFoundException, LineNotFoundException {
         int targetIndex = 4;
         this.lineStopService.addBusStop(1L, 1L, 37, targetIndex);
         List<LineStop> busStops = this.lineStopService.getBusStops(1L);
@@ -84,7 +94,7 @@ class LineStopServiceTest extends SpringAssistedUnitTest {
     @ParameterizedTest
     @ValueSource(ints = {0, 1, 2, 3})
     @Sql("/data-test.sql")
-    void testAddBusStopBusStopAlreadyExists(int targetIndex) {
+    void testAddBusStopBusStopAlreadyExists(int targetIndex) throws BusStopNotFoundException, LineNotFoundException {
 
         this.lineStopService.addBusStop(1L, 1L, 37, targetIndex);
         List<LineStop> busStops = this.lineStopService.getBusStops(1L);
@@ -92,6 +102,18 @@ class LineStopServiceTest extends SpringAssistedUnitTest {
         assertThat(busStops.get(targetIndex))
                 .extracting(LineStop::getSecondsToNextStop, lineStop -> lineStop.getLine().getId(), lineStop -> lineStop.getBusStop().getId())
                 .containsExactly(37, 1L, 1L);
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testAddBusStopToNonexistentLine() {
+        assertThrows(LineNotFoundException.class, () -> this.lineStopService.addBusStop(7777L, 1L, 1, 1));
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testAddBusStopNonexistentBusStop() {
+        assertThrows(BusStopNotFoundException.class, () -> this.lineStopService.addBusStop(1L, 7777L, 1, 1));
     }
 
     @ParameterizedTest
@@ -111,7 +133,7 @@ class LineStopServiceTest extends SpringAssistedUnitTest {
 
     @Test
     @Sql("/busline-with-duplicate-stop.sql")
-    void testRemoveDuplicateBusStop() throws Exception {
+    void testRemoveBusStopDuplicateBusStop() throws Exception {
         int lineStopIdToRemove = 4;
         this.lineStopService.removeBusStop(1L, lineStopIdToRemove);
         List<LineStop> busStops = this.lineStopService.getBusStops(1L);
@@ -121,4 +143,26 @@ class LineStopServiceTest extends SpringAssistedUnitTest {
         // all bus stops still exist
         assertThat(this.busStopRepository.findAll()).map(BusStop::getId).contains(1L, 4L, 5L);
     }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testRemoveBusStopNonexistentLineStop() {
+        assertThrows(LineStopNotFoundException.class, () -> this.lineStopService.removeBusStop(1L, 7777L));
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testRemoveBusStopFromNonexistentLine() {
+        assertThrows(LineNotFoundException.class, () -> this.lineStopService.removeBusStop(7777L, 1L));
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testRemoveBusStopLineStopNotOnThisLine() {
+        LineStopNotFoundException lineStopNotFoundException = assertThrows(LineStopNotFoundException.class, () -> this.lineStopService.removeBusStop(2, 1L));
+        assertThat(lineStopNotFoundException.getMessage()).contains("It does not exist on line 2, but on line 1.");
+    }
+
+
+
 }

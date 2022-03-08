@@ -2,6 +2,9 @@ package de.hswhameln.timetablemanager.services;
 
 import de.hswhameln.timetablemanager.entities.Line;
 import de.hswhameln.timetablemanager.entities.LineStop;
+import de.hswhameln.timetablemanager.exceptions.BusStopNotFoundException;
+import de.hswhameln.timetablemanager.exceptions.LineNotFoundException;
+import de.hswhameln.timetablemanager.exceptions.LineStopNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.NotFoundException;
 import de.hswhameln.timetablemanager.repositories.BusStopRepository;
 import de.hswhameln.timetablemanager.repositories.LineRepository;
@@ -29,26 +32,28 @@ public class LineStopService {
     }
 
 
-    public List<LineStop> getBusStops(long lineId) {
+    public List<LineStop> getBusStops(long lineId) throws LineNotFoundException {
+        if (!this.lineRepository.existsById(lineId)) {
+            throw new LineNotFoundException("lineId", lineId);
+        }
         return this.lineStopRepository.findByLineIdOrderByIndex(lineId);
     }
 
     @Transactional
-    public void addBusStop(long lineId, long busStopId, Integer secondsToNextStop, int targetIndex) {
-        var line = this.lineRepository.getById(lineId);
-        var busStop = this.busStopRepository.getById(busStopId);
-
+    public void addBusStop(long lineId, long busStopId, Integer secondsToNextStop, int targetIndex) throws LineNotFoundException, BusStopNotFoundException {
+        var line = this.lineRepository.findById(lineId).orElseThrow(() -> new LineNotFoundException("lineId", lineId));
+        var busStop = this.busStopRepository.findById(busStopId).orElseThrow(() -> new BusStopNotFoundException("busStopId", busStopId));
 
         LineStop lineStop = new LineStop(secondsToNextStop, line, busStop);
         insertLineStop(line, lineStop, targetIndex);
     }
 
     @Transactional
-    public void removeBusStop(long lineId, long lineStopId) throws NotFoundException {
-        var line = this.lineRepository.findById(lineId).orElseThrow(() -> new NotFoundException("Line with ID " + lineId + " does not exist." ));
-        var lineStop = this.lineStopRepository.findById(lineStopId).orElseThrow(() -> new NotFoundException("LineStop with ID " + lineStopId + " does not exist." ));
+    public void removeBusStop(long lineId, long lineStopId) throws LineNotFoundException, LineStopNotFoundException {
+        var line = this.lineRepository.findById(lineId).orElseThrow(() -> new LineNotFoundException("lineId", lineId));
+        var lineStop = this.lineStopRepository.findById(lineStopId).orElseThrow(() -> new LineStopNotFoundException("lineStopId", lineStopId));
         if (lineStop.getLine().getId() != lineId) {
-            throw new NotFoundException("LineStop with ID " + lineStopId + " does not exist on line " + lineId + ". (Hint: it's on line " + lineStop.getLine().getId() +" instead.)");
+            throw new LineStopNotFoundException("lineStopId", lineStopId, String.format("It does not exist on line %d, but on line %d.", lineId, lineStop.getLine().getId()));
         }
 
         removeLineStop(line, lineStop);

@@ -3,6 +3,7 @@ package de.hswhameln.timetablemanager.services;
 import de.hswhameln.timetablemanager.businessobjects.ScheduleBO;
 import de.hswhameln.timetablemanager.entities.Line;
 import de.hswhameln.timetablemanager.entities.Schedule;
+import de.hswhameln.timetablemanager.exceptions.LineNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.NotFoundException;
 import de.hswhameln.timetablemanager.mapping.ScheduleToBoMapper;
 import de.hswhameln.timetablemanager.repositories.LineRepository;
@@ -29,7 +30,7 @@ public class ScheduleService {
     }
 
     public ScheduleBO createSchedule(long lineId, LocalTime startTime, boolean reverseDirection) throws NotFoundException {
-        Line line = this.lineRepository.findById(lineId).orElseThrow(() -> new NotFoundException("Line not found"));
+        Line line = this.lineRepository.findById(lineId).orElseThrow(() -> new LineNotFoundException("lineId", lineId));
         Schedule createdSchedule = new Schedule(line, startTime, reverseDirection);
         Schedule actualSchedule = this.scheduleRepository.save(createdSchedule);
         return this.scheduleToBoMapper.enrichWithTargetDestination(actualSchedule);

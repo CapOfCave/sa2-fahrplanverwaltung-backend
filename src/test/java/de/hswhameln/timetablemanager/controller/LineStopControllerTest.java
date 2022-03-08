@@ -82,6 +82,56 @@ class LineStopControllerTest extends IntegrationTest {
 
     @Test
     @Sql("/data-test.sql")
+    void testAddBusStopLineNotFound() throws Exception {
+
+        int lineId = 7777;
+        String requestBody = """
+                {
+                   "busStopId": 2,
+                   "secondsToNextStop": 10,
+                   "targetIndex": 2
+                 }
+                """;
+
+        String expectedResponse = "Line with lineId '7777' was not found. Reason: It does not exist.";
+
+        this.mockMvc.perform(
+                        post("/lines/{lineId}/busstops", lineId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(expectedResponse));
+
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testAddBusStopBusStopNotFound() throws Exception {
+
+        int lineId = 1;
+        String requestBody = """
+                {
+                   "busStopId": 7777,
+                   "secondsToNextStop": 10,
+                   "targetIndex": 2
+                 }
+                """;
+
+        String expectedResponse = "BusStop with busStopId '7777' was not found. Reason: It does not exist.";
+
+        this.mockMvc.perform(
+                        post("/lines/{lineId}/busstops", lineId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(expectedResponse));
+
+    }
+
+    @Test
+    @Sql("/data-test.sql")
     void testRemoveBusStop() throws Exception {
 
         int lineId = 1;
@@ -117,4 +167,72 @@ class LineStopControllerTest extends IntegrationTest {
                 .andExpect(content().json(expectedResponseGet));
 
     }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testRemoveBusStopLineNotFound() throws Exception {
+
+        int lineId = 7777;
+        int lineStopId = 2;
+
+        String expectedResponse = "Line with lineId '7777' was not found. Reason: It does not exist.";
+
+        this.mockMvc.perform(
+                        delete("/lines/{lineId}/busstops/{lineStopId}", lineId, lineStopId))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(expectedResponse));
+
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testRemoveBusStopLineStopNotFound() throws Exception {
+
+        int lineId = 1;
+        int lineStopId = 7777;
+
+        String expectedResponse = "LineStop with lineStopId '7777' was not found. Reason: It does not exist.";
+
+        this.mockMvc.perform(
+                        delete("/lines/{lineId}/busstops/{lineStopId}", lineId, lineStopId))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(expectedResponse));
+
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testRemoveBusStopLineStopNotOnThisLine() throws Exception {
+
+        int lineId = 1;
+        int lineStopId = 4;
+
+        String expectedResponse = "LineStop with lineStopId '4' was not found. Reason: It does not exist on line 1, but on line 2.";
+
+        this.mockMvc.perform(
+                        delete("/lines/{lineId}/busstops/{lineStopId}", lineId, lineStopId))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(expectedResponse));
+
+    }
+
+    @Test
+    void testGetBusStopsLineNotFound() throws Exception {
+
+        int lineId = 7777;
+
+        String expectedResponse = "Line with lineId '7777' was not found. Reason: It does not exist.";
+
+        this.mockMvc.perform(
+                        get("/lines/{lineId}/busstops/", lineId))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(expectedResponse));
+
+    }
+
+
 }

@@ -2,6 +2,8 @@ package de.hswhameln.timetablemanager.controller;
 
 import de.hswhameln.timetablemanager.dto.requests.AddBusStopRequest;
 import de.hswhameln.timetablemanager.dto.responses.LineStopOverviewDto;
+import de.hswhameln.timetablemanager.exceptions.BusStopNotFoundException;
+import de.hswhameln.timetablemanager.exceptions.LineNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.NotFoundException;
 import de.hswhameln.timetablemanager.mapping.LineStopToDtoMapper;
 import de.hswhameln.timetablemanager.services.LineStopService;
@@ -32,7 +34,7 @@ public class LineStopController {
     }
 
     @GetMapping
-    public Collection<LineStopOverviewDto> getBusStops(@PathVariable long lineId) {
+    public Collection<LineStopOverviewDto> getBusStops(@PathVariable long lineId) throws NotFoundException {
         return this.lineService.getBusStops(lineId)
                 .stream()
                 .map(this.lineStopToDtoMapper::mapToLineStopOverviewDto)
@@ -40,16 +42,12 @@ public class LineStopController {
     }
 
     @PostMapping
-    public void addBusStop(@PathVariable long lineId, @RequestBody AddBusStopRequest addBusStopRequest) {
+    public void addBusStop(@PathVariable long lineId, @RequestBody AddBusStopRequest addBusStopRequest) throws NotFoundException {
         this.lineService.addBusStop(lineId, addBusStopRequest.getBusStopId(), addBusStopRequest.getSecondsToNextStop(), addBusStopRequest.getTargetIndex());
     }
 
     @DeleteMapping("/{lineStopId}")
-    public void removeBusStop(@PathVariable long lineId, @PathVariable long lineStopId) {
-        try {
+    public void removeBusStop(@PathVariable long lineId, @PathVariable long lineStopId) throws NotFoundException {
             this.lineService.removeBusStop(lineId, lineStopId);
-        } catch (NotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }
     }
 }
