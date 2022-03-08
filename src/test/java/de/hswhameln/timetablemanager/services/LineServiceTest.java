@@ -1,9 +1,11 @@
 package de.hswhameln.timetablemanager.services;
 
 import de.hswhameln.timetablemanager.entities.Line;
+import de.hswhameln.timetablemanager.exceptions.DeletionForbiddenException;
 import de.hswhameln.timetablemanager.exceptions.LineNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.NameAlreadyTakenException;
 import de.hswhameln.timetablemanager.repositories.LineRepository;
+import de.hswhameln.timetablemanager.repositories.LineStopRepository;
 import de.hswhameln.timetablemanager.test.SpringAssistedUnitTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,19 +15,20 @@ import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LineServiceTest extends SpringAssistedUnitTest {
 
     private final LineRepository lineRepository;
+    private final LineStopRepository lineStopRepository;
 
     private final LineService objectUnderTest;
 
     @Autowired
-    LineServiceTest(LineRepository lineRepository, LineService objectUnderTest) {
+    LineServiceTest(LineRepository lineRepository, LineStopRepository lineStopRepository, LineService objectUnderTest) {
         this.lineRepository = lineRepository;
+        this.lineStopRepository = lineStopRepository;
         this.objectUnderTest = objectUnderTest;
     }
 
@@ -80,12 +83,21 @@ class LineServiceTest extends SpringAssistedUnitTest {
     }
 
     @Test
-    @Sql("/data-test.sql")
-    void testDeleteLine() throws LineNotFoundException {
+    @Sql("/data-without-schedules.sql")
+    void testDeleteLine() throws LineNotFoundException, DeletionForbiddenException {
         long countBefore = lineRepository.count();
         this.objectUnderTest.deleteLine(1);
         assertEquals(countBefore - 1, this.lineRepository.count());
         assertThat(this.lineRepository.findById(1L)).isEmpty();
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testDeleteLineFailsWithSchedule() {
+        long countBefore = lineRepository.count();
+        assertThrows(DeletionForbiddenException.class, () -> this.objectUnderTest.deleteLine(1));
+        assertEquals(countBefore, this.lineRepository.count());
+        assertThat(this.lineRepository.findById(1L)).isPresent();
     }
 
     @Test

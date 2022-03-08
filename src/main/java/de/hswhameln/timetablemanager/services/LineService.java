@@ -1,12 +1,14 @@
 package de.hswhameln.timetablemanager.services;
 
 import de.hswhameln.timetablemanager.entities.Line;
+import de.hswhameln.timetablemanager.exceptions.DeletionForbiddenException;
 import de.hswhameln.timetablemanager.exceptions.LineNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.NameAlreadyTakenException;
 import de.hswhameln.timetablemanager.repositories.LineRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -32,9 +34,11 @@ public class LineService {
         return new ArrayList<>(this.lineRepository.findAll());
     }
 
-    public void deleteLine(long id) throws LineNotFoundException {
-        if (!this.lineRepository.existsById(id)) {
-            throw new LineNotFoundException("lineId", id);
+    @Transactional
+    public void deleteLine(long id) throws LineNotFoundException, DeletionForbiddenException {
+        Line line = getLine(id);
+        if (!line.getSchedules().isEmpty()) {
+            throw new DeletionForbiddenException("Line", id, "This Line is part of at least one Schedule.");
         }
         this.lineRepository.deleteById(id);
     }

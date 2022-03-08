@@ -9,6 +9,7 @@ import de.hswhameln.timetablemanager.entities.BusStop;
 import de.hswhameln.timetablemanager.entities.Line;
 import de.hswhameln.timetablemanager.entities.LineStop;
 import de.hswhameln.timetablemanager.exceptions.BusStopNotFoundException;
+import de.hswhameln.timetablemanager.exceptions.DeletionForbiddenException;
 import de.hswhameln.timetablemanager.exceptions.NameAlreadyTakenException;
 import de.hswhameln.timetablemanager.mapping.ScheduleToBoMapper;
 import de.hswhameln.timetablemanager.repositories.BusStopRepository;
@@ -55,9 +56,11 @@ public class BusStopService {
         return new ArrayList<>(this.busStopRepository.findAll());
     }
 
-    public void deleteBusStop(long id) throws BusStopNotFoundException {
-        if (!this.busStopRepository.existsById(id)) {
-            throw new BusStopNotFoundException("busStopId", id);
+    @Transactional
+    public void deleteBusStop(long id) throws BusStopNotFoundException, DeletionForbiddenException {
+        BusStop busStop = getBusStop(id);
+        if (!busStop.getLineStops().isEmpty()) {
+            throw new DeletionForbiddenException("BusStop", id, "This BusStop is part of at least one line.");
         }
         this.busStopRepository.deleteById(id);
     }

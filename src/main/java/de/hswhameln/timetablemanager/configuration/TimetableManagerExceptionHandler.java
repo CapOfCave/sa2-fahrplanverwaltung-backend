@@ -1,5 +1,6 @@
 package de.hswhameln.timetablemanager.configuration;
 
+import de.hswhameln.timetablemanager.exceptions.DeletionForbiddenException;
 import de.hswhameln.timetablemanager.exceptions.InvalidArgumentException;
 import de.hswhameln.timetablemanager.exceptions.NotFoundException;
 import org.springframework.http.HttpStatus;
@@ -26,4 +27,13 @@ public class TimetableManagerExceptionHandler extends ResponseEntityExceptionHan
     protected String handleNotFoundException(NotFoundException exception) {
         return exception.getMessage();
     }
+
+
+    @ExceptionHandler(DeletionForbiddenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseBody
+    protected String handleDeletionForbiddenException(DeletionForbiddenException exception) {
+        return exception.getMessage();
+    }
+
 }

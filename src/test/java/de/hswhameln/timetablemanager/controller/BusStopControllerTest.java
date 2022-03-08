@@ -172,6 +172,19 @@ class BusStopControllerTest extends IntegrationTest {
 
     @Test
     @Sql("/data-test.sql")
+    void testDeleteBusStopForbidden() throws Exception {
+
+        String expectedResponse = "Could not delete BusStop with id 1. Reason: This BusStop is part of at least one line.";
+        this.mockMvc.perform(
+                        delete("/busstops/{busStopId}/", 1))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+                .andExpect(content().string(expectedResponse));
+
+    }
+
+    @Test
+    @Sql("/data-test.sql")
     void testDeleteBusStopNonExistent() throws Exception {
 
         String expectedResponse = "BusStop with busStopId '7777' was not found. Reason: It does not exist.";

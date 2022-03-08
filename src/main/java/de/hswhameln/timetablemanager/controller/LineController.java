@@ -5,6 +5,7 @@ import de.hswhameln.timetablemanager.dto.requests.ModifyLineRequest;
 import de.hswhameln.timetablemanager.dto.responses.LineDetailDto;
 import de.hswhameln.timetablemanager.dto.responses.LineOverviewDto;
 import de.hswhameln.timetablemanager.entities.Line;
+import de.hswhameln.timetablemanager.exceptions.DeletionForbiddenException;
 import de.hswhameln.timetablemanager.exceptions.LineNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.NameAlreadyTakenException;
 import de.hswhameln.timetablemanager.exceptions.NotFoundException;
@@ -66,7 +67,7 @@ public class LineController {
 
     @DeleteMapping("/{lineId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteLine(@PathVariable long lineId) throws NotFoundException {
+    public void deleteLine(@PathVariable long lineId) throws NotFoundException, DeletionForbiddenException {
         this.lineService.deleteLine(lineId);
     }
 }

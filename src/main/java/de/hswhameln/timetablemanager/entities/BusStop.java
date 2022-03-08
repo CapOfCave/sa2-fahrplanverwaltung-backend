@@ -21,7 +21,7 @@ public class BusStop {
     @Column
     private String name;
 
-    @OneToMany(mappedBy = "busStop", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "busStop")
     private List<LineStop> lineStops = new ArrayList<>();
 
 

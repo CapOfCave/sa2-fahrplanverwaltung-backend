@@ -10,6 +10,7 @@ import de.hswhameln.timetablemanager.dto.responses.BusStopScheduleDto;
 import de.hswhameln.timetablemanager.dto.responses.BusStopTimetableDto;
 import de.hswhameln.timetablemanager.entities.BusStop;
 import de.hswhameln.timetablemanager.exceptions.BusStopNotFoundException;
+import de.hswhameln.timetablemanager.exceptions.DeletionForbiddenException;
 import de.hswhameln.timetablemanager.exceptions.NameAlreadyTakenException;
 import de.hswhameln.timetablemanager.mapping.BusStopScheduleToDtoMapper;
 import de.hswhameln.timetablemanager.mapping.BusStopToDtoMapper;
@@ -72,7 +73,7 @@ public class BusStopController {
     }
 
     @DeleteMapping("/{busStopId}")
-    public void deleteBusStop(@PathVariable long busStopId) throws BusStopNotFoundException {
+    public void deleteBusStop(@PathVariable long busStopId) throws BusStopNotFoundException, DeletionForbiddenException {
         this.busStopService.deleteBusStop(busStopId);
     }
 

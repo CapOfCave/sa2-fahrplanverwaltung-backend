@@ -6,6 +6,7 @@ import de.hswhameln.timetablemanager.exceptions.BusStopNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.LineNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.LineStopNotFoundException;
 import de.hswhameln.timetablemanager.repositories.BusStopRepository;
+import de.hswhameln.timetablemanager.repositories.LineStopRepository;
 import de.hswhameln.timetablemanager.test.SpringAssistedUnitTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -26,10 +27,13 @@ class LineStopServiceTest extends SpringAssistedUnitTest {
 
     private final BusStopRepository busStopRepository;
 
+    private final LineStopRepository lineStopRepository;
+
     @Autowired
-    LineStopServiceTest(LineStopService lineStopService, BusStopRepository busStopRepository) {
+    LineStopServiceTest(LineStopService lineStopService, BusStopRepository busStopRepository, LineStopRepository lineStopRepository) {
         this.lineStopService = lineStopService;
         this.busStopRepository = busStopRepository;
+        this.lineStopRepository = lineStopRepository;
     }
 
     @Test
@@ -129,6 +133,8 @@ class LineStopServiceTest extends SpringAssistedUnitTest {
 
         // all bus stops still exist
         assertThat(this.busStopRepository.findAll()).map(BusStop::getId).contains(1L, 4L, 5L);
+        // but the removed one was actually removed
+        assertThat(this.lineStopRepository.findById((long)lineStopIdToRemove)).isEmpty();
     }
 
     @Test

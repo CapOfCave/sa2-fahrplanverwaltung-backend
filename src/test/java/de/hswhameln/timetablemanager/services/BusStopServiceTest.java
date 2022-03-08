@@ -5,6 +5,7 @@ import de.hswhameln.timetablemanager.businessobjects.BusStopScheduleEntryBO;
 import de.hswhameln.timetablemanager.businessobjects.ScheduleBO;
 import de.hswhameln.timetablemanager.entities.BusStop;
 import de.hswhameln.timetablemanager.exceptions.BusStopNotFoundException;
+import de.hswhameln.timetablemanager.exceptions.DeletionForbiddenException;
 import de.hswhameln.timetablemanager.exceptions.NameAlreadyTakenException;
 import de.hswhameln.timetablemanager.repositories.BusStopRepository;
 import de.hswhameln.timetablemanager.test.SpringAssistedUnitTest;
@@ -85,13 +86,23 @@ class BusStopServiceTest extends SpringAssistedUnitTest {
     }
 
     @Test
-    @Sql("/data-test.sql")
-    void testDeleteBusStop() throws BusStopNotFoundException {
+    @Sql("/busstops.sql")
+    void testDeleteBusStop() throws BusStopNotFoundException, DeletionForbiddenException {
         long targetId = 8;
         long countBefore = busStopRepository.count();
         this.objectUnderTest.deleteBusStop(targetId);
         assertEquals(countBefore - 1, this.busStopRepository.count());
         assertThat(this.busStopRepository.findById(targetId)).isEmpty();
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testDeleteBusStopFailsWithLine() {
+        long targetId = 1L;
+        long countBefore = busStopRepository.count();
+        assertThrows(DeletionForbiddenException.class, () -> this.objectUnderTest.deleteBusStop(targetId));
+        assertEquals(countBefore, this.busStopRepository.count());
+        assertThat(this.busStopRepository.findById(targetId)).isPresent();
     }
 
     @Test

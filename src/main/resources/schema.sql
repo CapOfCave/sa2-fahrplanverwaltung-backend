@@ -30,5 +30,8 @@ CREATE TABLE SCHEDULE
     id                bigint identity primary key,
     line_id           bigint  not null,
     reverse_direction boolean not null,
-    start_time        time    not null
+    start_time        time    not null,
+    CONSTRAINT fk_schedule_line_id
+        FOREIGN KEY (line_id)
+            REFERENCES LINE (id)
 );

@@ -211,6 +211,19 @@ class LineControllerTest extends IntegrationTest {
 
     @Test
     @Sql("/data-test.sql")
+    void testDeleteLineForbidden() throws Exception {
+
+        String expectedResponse = "Could not delete Line with id 1. Reason: This Line is part of at least one Schedule.";
+        this.mockMvc.perform(
+                        delete("/lines/{lineId}/", 1))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+                .andExpect(content().string(expectedResponse));
+
+    }
+
+    @Test
+    @Sql("/data-test.sql")
     void testDeleteLineLineDoesNotExist() throws Exception {
         int lineId = 7777;
         String expectedResponse = "Line with lineId '7777' was not found. Reason: It does not exist.";

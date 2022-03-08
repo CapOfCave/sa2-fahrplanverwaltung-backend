@@ -2,6 +2,7 @@ package de.hswhameln.timetablemanager.entities;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -22,6 +23,10 @@ public class Line {
     @OneToMany(mappedBy = "line", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("index")
     private List<LineStop> lineStops = new ArrayList<>();
+
+    @OneToMany(mappedBy = "line", fetch = FetchType.LAZY)
+    private List<Schedule> schedules = new ArrayList<>();
+
 
     public Line() {
     }
@@ -61,5 +66,9 @@ public class Line {
                 ", name='" + name + '\'' +
                 ", lineStops=" + lineStops +
                 '}';
+    }
+
+    public List<Schedule> getSchedules() {
+        return schedules;
     }
 }
