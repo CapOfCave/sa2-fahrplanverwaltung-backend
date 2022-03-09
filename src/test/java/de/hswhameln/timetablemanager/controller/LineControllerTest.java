@@ -1,6 +1,7 @@
 package de.hswhameln.timetablemanager.controller;
 
 import de.hswhameln.timetablemanager.test.IntegrationTest;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -24,6 +25,7 @@ class LineControllerTest extends IntegrationTest {
     private MockMvc mockMvc;
 
     @Test
+    @DisplayName("As an employee, I can create a bus line by specifying a unique bus line name.")
     void testCreateLine() throws Exception {
 
         String requestBody = """
@@ -68,6 +70,7 @@ class LineControllerTest extends IntegrationTest {
 
     @Test
     @Sql("/data-test.sql")
+    @DisplayName("A bus line cannot be created with a name that is already in use.")
     void testCreateLineNameTaken() throws Exception {
 
         String requestBody = """
@@ -89,6 +92,7 @@ class LineControllerTest extends IntegrationTest {
     }
 
     @Test
+    @DisplayName("As an employee, I can rename bus lines.")
     @Sql("/data-test.sql")
     void testRenameLine() throws Exception {
 
@@ -195,6 +199,7 @@ class LineControllerTest extends IntegrationTest {
     }
 
     @Test
+    @DisplayName("As an employee, I can delete a bus line that is not included in any schedule.")
     @Sql("/data-test.sql")
     void testDeleteLine() throws Exception {
         int lineId = 2;
@@ -210,6 +215,7 @@ class LineControllerTest extends IntegrationTest {
     }
 
     @Test
+    @DisplayName("As an employee, I cannot delete a bus line that is included in a schedule.")
     @Sql("/data-test.sql")
     void testDeleteLineForbidden() throws Exception {
 
@@ -223,6 +229,7 @@ class LineControllerTest extends IntegrationTest {
     }
 
     @Test
+    @DisplayName("When trying to delete a nonexistent line a proper exception is thrown.")
     @Sql("/data-test.sql")
     void testDeleteLineLineDoesNotExist() throws Exception {
         int lineId = 7777;
@@ -233,6 +240,45 @@ class LineControllerTest extends IntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(expectedResponse));
     }
+
+    @Test
+    @DisplayName("As a customer I can display a bus route with all stops including travel times")
+    @Sql("/data-test.sql")
+    void testGetLine() throws Exception {
+        String expectedResponse = """
+                {
+                   "id": 2,
+                   "name": "S65",
+                   "lineStops": [
+                     {
+                       "id": 4,
+                       "secondsToNextStop": 60,
+                       "busStopId": 1,
+                       "busStopName": "Abbey Road"
+                     },
+                     {
+                       "id": 6,
+                       "secondsToNextStop": 30,
+                       "busStopId": 2,
+                       "busStopName": "Barn Street"
+                     },
+                     {
+                       "id": 5,
+                       "secondsToNextStop": null,
+                       "busStopId": 3,
+                       "busStopName": "Camp Street"
+                     }
+                   ]
+                 }
+                """;
+        this.mockMvc.perform(
+                        get("/lines/{id}", 2L))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json(expectedResponse));
+
+    }
+
 
     @Test
     @Sql("/data-test.sql")

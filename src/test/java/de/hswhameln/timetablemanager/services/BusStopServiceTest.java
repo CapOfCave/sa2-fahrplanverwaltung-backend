@@ -1,6 +1,6 @@
 package de.hswhameln.timetablemanager.services;
 
-import de.hswhameln.timetablemanager.businessobjects.BusStopScheduleBO;
+import de.hswhameln.timetablemanager.businessobjects.BusStopSchedulesBO;
 import de.hswhameln.timetablemanager.businessobjects.BusStopScheduleEntryBO;
 import de.hswhameln.timetablemanager.businessobjects.ScheduleBO;
 import de.hswhameln.timetablemanager.entities.BusStop;
@@ -136,7 +136,7 @@ class BusStopServiceTest extends SpringAssistedUnitTest {
     @Test
     @Sql("/getRelevantSchedulesData.sql")
     void testGetBusStopScheduleDefaultDirection() throws BusStopNotFoundException {
-        BusStopScheduleBO busStopSchedule = this.objectUnderTest.getBusStopSchedule(4L);
+        BusStopSchedulesBO busStopSchedule = this.objectUnderTest.getBusStopSchedule(4L);
         assertEquals(4L, busStopSchedule.getBusStop().getId());
         assertThat(busStopSchedule.getScheduleEntries())
                 .hasSize(1)
@@ -161,7 +161,7 @@ class BusStopServiceTest extends SpringAssistedUnitTest {
     @Sql("/getRelevantSchedulesData.sql")
     void testGetBusStopScheduleReverseDirection() throws BusStopNotFoundException {
         long busStopId = 5L;
-        BusStopScheduleBO busStopSchedule = this.objectUnderTest.getBusStopSchedule(busStopId);
+        BusStopSchedulesBO busStopSchedule = this.objectUnderTest.getBusStopSchedule(busStopId);
         assertEquals(busStopId, busStopSchedule.getBusStop().getId());
         assertThat(busStopSchedule.getScheduleEntries())
                 .hasSize(1)
@@ -185,7 +185,7 @@ class BusStopServiceTest extends SpringAssistedUnitTest {
     @Transactional
     @Sql("/schedulesOverMidnight.sql")
     void testGetBusStopScheduleDefaultDirectionCrossingMidnight() throws BusStopNotFoundException {
-        BusStopScheduleBO busStopSchedule = this.objectUnderTest.getBusStopSchedule(4L);
+        BusStopSchedulesBO busStopSchedule = this.objectUnderTest.getBusStopSchedule(4L);
         assertEquals(4L, busStopSchedule.getBusStop().getId());
         assertThat(busStopSchedule.getScheduleEntries())
                 .hasSize(1)
@@ -210,7 +210,7 @@ class BusStopServiceTest extends SpringAssistedUnitTest {
     @Transactional
     @Sql("/schedulesOverMidnight.sql")
     void testGetBusStopScheduleReverseDirectionCrossingMidnight() throws BusStopNotFoundException {
-        BusStopScheduleBO busStopSchedule = this.objectUnderTest.getBusStopSchedule(5L);
+        BusStopSchedulesBO busStopSchedule = this.objectUnderTest.getBusStopSchedule(5L);
         assertEquals(5L, busStopSchedule.getBusStop().getId());
         assertThat(busStopSchedule.getScheduleEntries())
                 .hasSize(1)

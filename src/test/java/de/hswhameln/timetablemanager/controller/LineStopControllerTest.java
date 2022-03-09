@@ -1,6 +1,7 @@
 package de.hswhameln.timetablemanager.controller;
 
 import de.hswhameln.timetablemanager.test.IntegrationTest;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -23,6 +24,8 @@ class LineStopControllerTest extends IntegrationTest {
     private MockMvc mockMvc;
 
     @Test
+    @DisplayName("As an employee, I can add existing stops to a bus route in a fixed order " +
+            "with travel times to the next stop (the travel times can be set arbitrarily).")
     @Sql("/data-test.sql")
     void testAddBusStop() throws Exception {
 
@@ -81,6 +84,7 @@ class LineStopControllerTest extends IntegrationTest {
     }
 
     @Test
+    @DisplayName("When trying to add a bus stop to a nonexistent line a proper exception is thrown.")
     @Sql("/data-test.sql")
     void testAddBusStopLineNotFound() throws Exception {
 
@@ -106,6 +110,7 @@ class LineStopControllerTest extends IntegrationTest {
     }
 
     @Test
+    @DisplayName("When trying to add a nonexistent bus stop to a line a proper exception is thrown.")
     @Sql("/data-test.sql")
     void testAddBusStopBusStopNotFound() throws Exception {
 
@@ -131,6 +136,7 @@ class LineStopControllerTest extends IntegrationTest {
     }
 
     @Test
+    @DisplayName("As an employee, I can remove stops from a bus line. Linked schedules may need to be adjusted.")
     @Sql("/data-test.sql")
     void testRemoveBusStop() throws Exception {
 
@@ -169,6 +175,7 @@ class LineStopControllerTest extends IntegrationTest {
     }
 
     @Test
+    @DisplayName("When trying to remove a bus stop from a nonexistent line, a proper exception is thrown.")
     @Sql("/data-test.sql")
     void testRemoveBusStopLineNotFound() throws Exception {
 
@@ -186,6 +193,7 @@ class LineStopControllerTest extends IntegrationTest {
     }
 
     @Test
+    @DisplayName("When trying to remove a nonexistent bus stop from a line a proper exception is thrown.")
     @Sql("/data-test.sql")
     void testRemoveBusStopLineStopNotFound() throws Exception {
 
@@ -203,6 +211,7 @@ class LineStopControllerTest extends IntegrationTest {
     }
 
     @Test
+    @DisplayName("When trying to remove a bus stop from a line which does not stop there a proper exception is thrown.")
     @Sql("/data-test.sql")
     void testRemoveBusStopLineStopNotOnThisLine() throws Exception {
 
@@ -220,6 +229,7 @@ class LineStopControllerTest extends IntegrationTest {
     }
 
     @Test
+    @DisplayName("When trying to get information about the stops of a nonexistent line a proper exception is thrown.")
     void testGetBusStopsLineNotFound() throws Exception {
 
         int lineId = 7777;

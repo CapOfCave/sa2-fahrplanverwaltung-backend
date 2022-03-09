@@ -2,6 +2,7 @@ package de.hswhameln.timetablemanager.controller;
 
 import de.hswhameln.timetablemanager.repositories.ScheduleRepository;
 import de.hswhameln.timetablemanager.test.IntegrationTest;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -28,6 +29,8 @@ class ScheduleControllerTest extends IntegrationTest {
     private ScheduleRepository scheduleRepository;
 
     @Test
+    @DisplayName("As an employee, I can add bus lines to a schedule in the following form: " +
+            "Bus line X starts at Y o'clock in the direction of terminal stop Z.")
     @Sql("/data-without-schedules.sql")
     void testCreateSchedule() throws Exception {
 
@@ -91,6 +94,7 @@ class ScheduleControllerTest extends IntegrationTest {
     }
 
     @Test
+    @DisplayName("As an employee I can delete a schedule.")
     @Sql("/data-test.sql")
     void testDeleteSchedule() throws Exception {
         this.mockMvc.perform(

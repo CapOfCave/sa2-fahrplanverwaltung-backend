@@ -1,16 +1,17 @@
 package de.hswhameln.timetablemanager.controller;
 
-import de.hswhameln.timetablemanager.businessobjects.BusStopScheduleBO;
+import de.hswhameln.timetablemanager.businessobjects.BusStopSchedulesBO;
 import de.hswhameln.timetablemanager.businessobjects.BusStopTimetableBO;
 import de.hswhameln.timetablemanager.dto.requests.CreateBusStopRequest;
 import de.hswhameln.timetablemanager.dto.requests.ModifyBusStopRequest;
 import de.hswhameln.timetablemanager.dto.responses.BusStopDetailDto;
 import de.hswhameln.timetablemanager.dto.responses.BusStopOverviewDto;
-import de.hswhameln.timetablemanager.dto.responses.BusStopScheduleDto;
+import de.hswhameln.timetablemanager.dto.responses.BusStopSchedulesDto;
 import de.hswhameln.timetablemanager.dto.responses.BusStopTimetableDto;
 import de.hswhameln.timetablemanager.entities.BusStop;
 import de.hswhameln.timetablemanager.exceptions.BusStopNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.DeletionForbiddenException;
+import de.hswhameln.timetablemanager.exceptions.LineNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.NameAlreadyTakenException;
 import de.hswhameln.timetablemanager.mapping.BusStopScheduleToDtoMapper;
 import de.hswhameln.timetablemanager.mapping.BusStopToDtoMapper;
@@ -78,9 +79,9 @@ public class BusStopController {
     }
 
     @GetMapping("/{busStopId}/schedule")
-    public BusStopScheduleDto getBusStopSchedule(@PathVariable long busStopId) throws BusStopNotFoundException {
-        BusStopScheduleBO busStopSchedule = this.busStopService.getBusStopSchedule(busStopId);
-        return this.busStopScheduleToDtoMapper.mapToBusStopScheduleDto(busStopSchedule);
+    public BusStopSchedulesDto getBusStopSchedule(@PathVariable long busStopId) throws BusStopNotFoundException {
+        BusStopSchedulesBO busStopSchedule = this.busStopService.getBusStopSchedule(busStopId);
+        return this.busStopScheduleToDtoMapper.mapToBusStopSchedulesDto(busStopSchedule);
     }
 
     @GetMapping("/{busStopId}/timetable")
@@ -91,5 +92,14 @@ public class BusStopController {
     ) throws BusStopNotFoundException {
         BusStopTimetableBO timetable = this.busStopService.getTimetable(busStopId, startTime, Duration.ofSeconds(durationSeconds));
         return this.busStopScheduleToDtoMapper.mapToBusStopTimetableDto(timetable);
+    }
+
+    @GetMapping("/{busStopId}/schedule/{lineId}")
+    public BusStopSchedulesDto getSchedulesForLineAndBusStop(
+            @PathVariable long busStopId,
+            @PathVariable long lineId
+    ) throws BusStopNotFoundException, LineNotFoundException {
+        BusStopSchedulesBO schedules = this.busStopService.getSchedulesForBusStop(busStopId, lineId);
+        return this.busStopScheduleToDtoMapper.mapToBusStopSchedulesDto(schedules);
     }
 }

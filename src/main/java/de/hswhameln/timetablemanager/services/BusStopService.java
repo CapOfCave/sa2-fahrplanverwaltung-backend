@@ -1,6 +1,6 @@
 package de.hswhameln.timetablemanager.services;
 
-import de.hswhameln.timetablemanager.businessobjects.BusStopScheduleBO;
+import de.hswhameln.timetablemanager.businessobjects.BusStopSchedulesBO;
 import de.hswhameln.timetablemanager.businessobjects.BusStopScheduleEntryBO;
 import de.hswhameln.timetablemanager.businessobjects.BusStopTimetableBO;
 import de.hswhameln.timetablemanager.businessobjects.BusStopTimetableEntryBO;
@@ -10,9 +10,11 @@ import de.hswhameln.timetablemanager.entities.Line;
 import de.hswhameln.timetablemanager.entities.LineStop;
 import de.hswhameln.timetablemanager.exceptions.BusStopNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.DeletionForbiddenException;
+import de.hswhameln.timetablemanager.exceptions.LineNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.NameAlreadyTakenException;
 import de.hswhameln.timetablemanager.mapping.ScheduleToBoMapper;
 import de.hswhameln.timetablemanager.repositories.BusStopRepository;
+import de.hswhameln.timetablemanager.repositories.LineRepository;
 import de.hswhameln.timetablemanager.repositories.ScheduleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,13 +35,16 @@ public class BusStopService {
 
     private final BusStopRepository busStopRepository;
 
+    private final LineRepository lineRepository;
+
     private final ScheduleRepository scheduleRepository;
 
     private final ScheduleToBoMapper scheduleToBoMapper;
 
     @Autowired
-    public BusStopService(BusStopRepository busStopRepository, ScheduleRepository scheduleRepository, ScheduleToBoMapper scheduleToBoMapper) {
+    public BusStopService(BusStopRepository busStopRepository, LineRepository lineRepository, ScheduleRepository scheduleRepository, ScheduleToBoMapper scheduleToBoMapper) {
         this.busStopRepository = busStopRepository;
+        this.lineRepository = lineRepository;
         this.scheduleRepository = scheduleRepository;
         this.scheduleToBoMapper = scheduleToBoMapper;
     }
@@ -79,12 +84,12 @@ public class BusStopService {
      * Return all bus lines that stop at this bus stop combined with their arrival time (in order of arrival)
      */
     @Transactional
-    public BusStopScheduleBO getBusStopSchedule(long id) throws BusStopNotFoundException {
+    public BusStopSchedulesBO getBusStopSchedule(long id) throws BusStopNotFoundException {
         BusStop busStop = this.getBusStop(id);
 
         List<BusStopScheduleEntryBO> busStopScheduleEntries = getBusStopScheduleEntries(busStop);
 
-        return new BusStopScheduleBO(busStop, busStopScheduleEntries);
+        return new BusStopSchedulesBO(busStop, busStopScheduleEntries);
     }
 
     @Transactional
@@ -116,6 +121,24 @@ public class BusStopService {
                 .takeWhile(dayAndScheduleEntry -> !dayAndScheduleEntry.getArrival().isAfter(startTime.plus(duration)))
                 .toList();
         return new BusStopTimetableBO(busStop, allDayAndScheduleEntries);
+
+    }
+
+    @Transactional
+    public BusStopSchedulesBO getSchedulesForBusStop(long busStopId, long lineId) throws BusStopNotFoundException, LineNotFoundException {
+        BusStop busStop = this.getBusStop(busStopId);
+
+        List<BusStopScheduleEntryBO> busStopScheduleEntries = this.lineRepository.findById(lineId)
+                .orElseThrow(() -> new LineNotFoundException("lineId", lineId))
+                .getSchedules()
+                .stream()
+                .map(this.scheduleToBoMapper::enrichWithTargetDestination)
+                .map(schedule -> getBusStopScheduleEntriesForSchedule(busStopId, schedule))
+                .flatMap(Collection::stream)
+                .sorted(Comparator.comparing(BusStopScheduleEntryBO::getArrival))
+                .toList();
+        return new BusStopSchedulesBO(busStop, busStopScheduleEntries);
+
 
     }
 

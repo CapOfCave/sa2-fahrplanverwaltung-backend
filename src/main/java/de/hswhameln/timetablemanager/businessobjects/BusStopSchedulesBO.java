@@ -4,11 +4,11 @@ import de.hswhameln.timetablemanager.entities.BusStop;
 
 import java.util.Collection;
 
-public class BusStopScheduleBO {
+public class BusStopSchedulesBO {
     private BusStop busStop;
     private Collection<BusStopScheduleEntryBO> scheduleEntries;
 
-    public BusStopScheduleBO(BusStop busStop, Collection<BusStopScheduleEntryBO> scheduleEntries) {
+    public BusStopSchedulesBO(BusStop busStop, Collection<BusStopScheduleEntryBO> scheduleEntries) {
         this.busStop = busStop;
         this.scheduleEntries = scheduleEntries;
     }

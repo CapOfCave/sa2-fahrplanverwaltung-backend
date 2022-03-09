@@ -1,11 +1,11 @@
 package de.hswhameln.timetablemanager.mapping;
 
-import de.hswhameln.timetablemanager.businessobjects.BusStopScheduleBO;
+import de.hswhameln.timetablemanager.businessobjects.BusStopSchedulesBO;
 import de.hswhameln.timetablemanager.businessobjects.BusStopScheduleEntryBO;
 import de.hswhameln.timetablemanager.businessobjects.BusStopTimetableBO;
 import de.hswhameln.timetablemanager.businessobjects.BusStopTimetableEntryBO;
 import de.hswhameln.timetablemanager.dto.responses.BusStopOverviewDto;
-import de.hswhameln.timetablemanager.dto.responses.BusStopScheduleDto;
+import de.hswhameln.timetablemanager.dto.responses.BusStopSchedulesDto;
 import de.hswhameln.timetablemanager.dto.responses.BusStopScheduleEntryDto;
 import de.hswhameln.timetablemanager.dto.responses.BusStopTimetableDto;
 import de.hswhameln.timetablemanager.dto.responses.BusStopTimetableEntryDto;
@@ -27,13 +27,13 @@ public class BusStopScheduleToDtoMapper {
         this.scheduleToDtoMapper = scheduleToDtoMapper;
     }
 
-    public BusStopScheduleDto mapToBusStopScheduleDto(BusStopScheduleBO busStopSchedule) {
+    public BusStopSchedulesDto mapToBusStopSchedulesDto(BusStopSchedulesBO busStopSchedule) {
         BusStopOverviewDto busStopOverviewDto = this.busStopToDtoMapper.mapToBusStopOverviewDto(busStopSchedule.getBusStop());
         List<BusStopScheduleEntryDto> scheduleEntries = busStopSchedule.getScheduleEntries()
                 .stream()
                 .map(this::mapToBusStopScheduleEntryDto)
                 .toList();
-        return new BusStopScheduleDto(busStopOverviewDto, scheduleEntries);
+        return new BusStopSchedulesDto(busStopOverviewDto, scheduleEntries);
     }
 
     private BusStopScheduleEntryDto mapToBusStopScheduleEntryDto(BusStopScheduleEntryBO busStopScheduleEntry) {
