@@ -95,11 +95,11 @@ public class BusStopController {
     }
 
     @GetMapping("/{busStopId}/schedule/{lineId}")
-    public BusStopSchedulesDto getSchedulesForLineAndBusStop(
+    public BusStopSchedulesDto getSchedulesForLineAtBusStop(
             @PathVariable long busStopId,
             @PathVariable long lineId
     ) throws BusStopNotFoundException, LineNotFoundException {
-        BusStopSchedulesBO schedules = this.busStopService.getSchedulesForBusStop(busStopId, lineId);
+        BusStopSchedulesBO schedules = this.busStopService.getSchedulesForLineAtBusStop(busStopId, lineId);
         return this.busStopScheduleToDtoMapper.mapToBusStopSchedulesDto(schedules);
     }
 }

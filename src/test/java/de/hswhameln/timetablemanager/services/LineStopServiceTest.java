@@ -169,6 +169,44 @@ class LineStopServiceTest extends SpringAssistedUnitTest {
         assertThat(lineStopNotFoundException.getMessage()).contains("It does not exist on line 2, but on line 1.");
     }
 
+    @Test
+    @Sql("/data-test.sql")
+    void testModifyLineStopSecondsToNextStop() throws LineNotFoundException, LineStopNotFoundException {
+        LineStop lineStop = this.lineStopService.modifyLineStop(1L, 2L, null, 47);
+        assertThat(lineStop.getSecondsToNextStop()).isEqualTo(47);
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testModifyLineStopNonexistentLine() {
+        assertThrows(LineNotFoundException.class, () -> this.lineStopService.modifyLineStop(7777L, 2L, null, null));
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testModifyLineStopNonexistentLineStop() {
+        assertThrows(LineStopNotFoundException.class, () -> this.lineStopService.modifyLineStop(1L, 7777L, null, null));
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testModifyLineStopLineStopOnWrongLine() {
+        assertThrows(LineStopNotFoundException.class, () -> this.lineStopService.modifyLineStop(2L, 1L, null, null));
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testModifyLineStopMoveToSameIndex() throws LineNotFoundException, LineStopNotFoundException {
+
+        LineStop returnedLineStop = this.lineStopService.modifyLineStop(2L, 6L, 1, null);
+        assertThat(returnedLineStop).extracting(LineStop::getIndex, LineStop::getSecondsToNextStop).containsExactly(1, 30);
+
+        List<LineStop> busStops = this.lineStopService.getBusStops(2L);
+        assertThat(busStops).hasSize(3).map(LineStop::getIndex).containsExactly(0, 1, 2);
+        assertThat(busStops.get(1))
+                .extracting(LineStop::getSecondsToNextStop, lineStop -> lineStop.getLine().getId(), lineStop -> lineStop.getBusStop().getId())
+                .containsExactly(30, 2L, 2L);
+    }
 
 
 }

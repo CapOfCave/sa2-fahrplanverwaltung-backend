@@ -7,6 +7,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import java.util.Objects;
 
 @Entity
 public class LineStop {
@@ -73,6 +74,10 @@ public class LineStop {
         return id;
     }
 
+    public void setSecondsToNextStop(Integer secondsToNextStop) {
+        this.secondsToNextStop = secondsToNextStop;
+    }
+
     @Override
     public String toString() {
         return "LineStop{" +
@@ -86,6 +91,19 @@ public class LineStop {
 
     public Line getLine() {
         return this.line;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LineStop lineStop = (LineStop) o;
+        return id == lineStop.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
 

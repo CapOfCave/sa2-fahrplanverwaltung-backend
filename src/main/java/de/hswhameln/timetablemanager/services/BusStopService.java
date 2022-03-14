@@ -125,7 +125,7 @@ public class BusStopService {
     }
 
     @Transactional
-    public BusStopSchedulesBO getSchedulesForBusStop(long busStopId, long lineId) throws BusStopNotFoundException, LineNotFoundException {
+    public BusStopSchedulesBO getSchedulesForLineAtBusStop(long busStopId, long lineId) throws BusStopNotFoundException, LineNotFoundException {
         BusStop busStop = this.getBusStop(busStopId);
 
         List<BusStopScheduleEntryBO> busStopScheduleEntries = this.lineRepository.findById(lineId)
