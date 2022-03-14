@@ -10,6 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -136,6 +137,58 @@ class LineStopControllerTest extends IntegrationTest {
     }
 
     @Test
+    @DisplayName("When trying to add a line with an index that it too high, a proper exception is thrown.")
+    @Sql("/data-test.sql")
+    void testAddBusStopTargetIndexTooHigh() throws Exception {
+
+        int lineId = 1;
+        String requestBody = """
+                {
+                   "busStopId": 1,
+                   "secondsToNextStop": 10,
+                   "targetIndex": 7777
+                 }
+                """;
+
+        String expectedResponse = "The value '7777' is invalid for argument 'targetIndex'. Reason: It must not be greater than the number of stops on this line, which is 3.";
+
+        this.mockMvc.perform(
+                        post("/lines/{lineId}/busstops", lineId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(expectedResponse));
+
+    }
+
+    @Test
+    @DisplayName("When trying to add a line with a negative target index a proper exception is thrown.")
+    @Sql("/data-test.sql")
+    void testAddBusStopTargetIndexNegative() throws Exception {
+
+        int lineId = 1;
+        String requestBody = """
+                {
+                   "busStopId": 1,
+                   "secondsToNextStop": 10,
+                   "targetIndex": -1
+                 }
+                """;
+
+        String expectedResponse = "The value '-1' is invalid for argument 'targetIndex'. Reason: It must be greater than 0.";
+
+        this.mockMvc.perform(
+                        post("/lines/{lineId}/busstops", lineId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(expectedResponse));
+
+    }
+
+    @Test
     @DisplayName("As an employee, I can remove stops from a bus line. Linked schedules may need to be adjusted.")
     @Sql("/data-test.sql")
     void testRemoveBusStop() throws Exception {
@@ -240,6 +293,60 @@ class LineStopControllerTest extends IntegrationTest {
                         get("/lines/{lineId}/busstops/", lineId))
                 .andDo(print())
                 .andExpect(status().isNotFound())
+                .andExpect(content().string(expectedResponse));
+
+    }
+
+    @Test
+    @DisplayName("When trying to move a line to a negative target index a proper exception is thrown.")
+    @Sql("/data-test.sql")
+    void testModifyBusStopTargetIndexNegative() throws Exception {
+
+        int lineId = 1;
+        long lineStopId = 1;
+
+        String requestBody = """
+                {
+                   "secondsToNextStop": 10,
+                   "targetIndex": -1
+                 }
+                """;
+
+        String expectedResponse = "The value '-1' is invalid for argument 'targetIndex'. Reason: It must be greater than 0.";
+
+        this.mockMvc.perform(
+                        patch("/lines/{lineId}/busstops/{lineStopId}", lineId, lineStopId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(expectedResponse));
+
+    }
+
+    @Test
+    @DisplayName("When trying to move a line to a target index that it too high, a proper exception is thrown.")
+    @Sql("/data-test.sql")
+    void testModifyBusStopTargetIndexTooHigh() throws Exception {
+
+        int lineId = 1;
+        long lineStopId = 1;
+        String requestBody = """
+                {
+                   "busStopId": 1,
+                   "secondsToNextStop": 10,
+                   "targetIndex": 7777
+                 }
+                """;
+
+        String expectedResponse = "The value '7777' is invalid for argument 'targetIndex'. Reason: It must be strictly smaller than the number of stops on this line, which is 3.";
+
+        this.mockMvc.perform(
+                        patch("/lines/{lineId}/busstops/{lineStopId}", lineId, lineStopId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
                 .andExpect(content().string(expectedResponse));
 
     }

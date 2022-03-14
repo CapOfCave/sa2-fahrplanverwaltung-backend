@@ -3,6 +3,7 @@ package de.hswhameln.timetablemanager.services;
 import de.hswhameln.timetablemanager.entities.Line;
 import de.hswhameln.timetablemanager.entities.LineStop;
 import de.hswhameln.timetablemanager.exceptions.BusStopNotFoundException;
+import de.hswhameln.timetablemanager.exceptions.InvalidArgumentException;
 import de.hswhameln.timetablemanager.exceptions.LineNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.LineStopNotFoundException;
 import de.hswhameln.timetablemanager.repositories.BusStopRepository;
@@ -38,9 +39,10 @@ public class LineStopService {
     }
 
     @Transactional
-    public void addBusStop(long lineId, long busStopId, Integer secondsToNextStop, int targetIndex) throws LineNotFoundException, BusStopNotFoundException {
+    public void addBusStop(long lineId, long busStopId, Integer secondsToNextStop, int targetIndex) throws LineNotFoundException, BusStopNotFoundException, InvalidArgumentException {
         var line = getLineById(lineId);
         var busStop = this.busStopRepository.findById(busStopId).orElseThrow(() -> new BusStopNotFoundException("busStopId", busStopId));
+        validateTargetIndex(targetIndex, line, true);
 
         LineStop lineStop = new LineStop(secondsToNextStop, line, busStop);
         insertLineStop(line, lineStop, targetIndex);
@@ -58,12 +60,13 @@ public class LineStopService {
 
 
     @Transactional
-    public LineStop modifyLineStop(long lineId, long lineStopId, Integer targetIndex, Integer secondsToNextStop) throws LineNotFoundException, LineStopNotFoundException {
+    public LineStop modifyLineStop(long lineId, long lineStopId, Integer targetIndex, Integer secondsToNextStop) throws LineNotFoundException, LineStopNotFoundException, InvalidArgumentException {
         Line line = getLineById(lineId);
         LineStop lineStop = getLineStopById(lineStopId);
         validateLineStopLineId(lineId, lineStop);
 
         if (targetIndex != null && targetIndex != lineStop.getIndex()) {
+            validateTargetIndex(targetIndex, line, false);
             removeLineStop(line, lineStop);
             insertLineStop(line, lineStop, targetIndex);
         }
@@ -111,6 +114,18 @@ public class LineStopService {
     private void validateLineStopLineId(long lineId, LineStop lineStop) throws LineStopNotFoundException {
         if (lineStop.getLine().getId() != lineId) {
             throw new LineStopNotFoundException("lineStopId", lineStop.getId(), String.format("It does not exist on line %d, but on line %d.", lineId, lineStop.getLine().getId()));
+        }
+    }
+    private void validateTargetIndex(Integer targetIndex, Line line, boolean allowAppending) throws InvalidArgumentException {
+        if (targetIndex < 0 ) {
+            throw new InvalidArgumentException("targetIndex", targetIndex, "It must be greater than 0.");
+        }
+        int maxIndex = line.getLineStops().size() - (allowAppending ? 0 : 1);
+        String formatString = allowAppending ? "It must not be greater than the number of stops on this line, which is %d."
+                : "It must be strictly smaller than the number of stops on this line, which is %d.";
+
+        if (targetIndex > maxIndex) {
+            throw new InvalidArgumentException("targetIndex", targetIndex, String.format(formatString, line.getLineStops().size()));
         }
     }
 

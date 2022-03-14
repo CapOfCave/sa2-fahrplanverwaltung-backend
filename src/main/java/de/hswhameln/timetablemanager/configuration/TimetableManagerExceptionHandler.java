@@ -14,7 +14,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class TimetableManagerExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(InvalidArgumentException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     protected String handleInvalidArgumentException(InvalidArgumentException exception) {
         return exception.getMessage();

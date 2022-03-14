@@ -84,7 +84,7 @@ class BusStopControllerTest extends IntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(requestBody))
                 .andDo(print())
-                .andExpect(status().isConflict())
+                .andExpect(status().isBadRequest())
                 .andExpect(content().string(expectedResponseCreate));
 
     }
