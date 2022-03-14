@@ -298,6 +298,58 @@ class LineStopControllerTest extends IntegrationTest {
     }
 
     @Test
+    @DisplayName("As an employee, I can change modify a line stop's time to next stop and position")
+    @Sql("/data-test.sql")
+    void testModifyBusStop() throws Exception {
+
+        int lineId = 1;
+        long lineStopId = 1;
+
+        String requestBody = """
+                {
+                   "secondsToNextStop": 747,
+                   "targetIndex": 2
+                 }
+                """;
+
+
+        String expectedResponse = """
+                {
+                    "id": 1,
+                    "name": "1",
+                    "lineStops": [
+                      {
+                        "id": 2,
+                        "secondsToNextStop": 120,
+                        "busStopId": 4,
+                        "busStopName": "Dean Avenue"
+                      },
+                      {
+                        "id": 3,
+                        "secondsToNextStop": null,
+                        "busStopId": 5,
+                        "busStopName": "East Hills Avenue"
+                      },
+                      {
+                        "id": 1,
+                        "secondsToNextStop": 747,
+                        "busStopId": 1,
+                        "busStopName": "Abbey Road"
+                      }
+                    ]
+                }
+                """;
+        this.mockMvc.perform(
+                        patch("/lines/{lineId}/busstops/{lineStopId}", lineId, lineStopId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json(expectedResponse));
+
+    }
+
+    @Test
     @DisplayName("When trying to move a line to a negative target index a proper exception is thrown.")
     @Sql("/data-test.sql")
     void testModifyBusStopTargetIndexNegative() throws Exception {
