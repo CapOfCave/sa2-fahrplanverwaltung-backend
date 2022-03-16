@@ -245,6 +245,61 @@ class BusStopControllerTest extends IntegrationTest {
 
     }
 
+
+    @Test
+    @Sql("/data-test.sql")
+    void testGetTimetableEmptyResult() throws Exception {
+
+        String expectedResponse = "{}";
+        int busStopId = 1;
+        this.mockMvc.perform(get("/busstops/{busStopId}/timetable", busStopId)
+                        .param("startTime", "2022-03-08T22:04")
+                        .param("durationSeconds", "9999"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json(expectedResponse));
+
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testGetTimetable() throws Exception {
+
+        String expectedResponse = """
+                {
+                    "busStop":{
+                      "id":1,
+                      "name":"Abbey Road"
+                    },
+                    "scheduleEntries":[
+                      {
+                        "schedule":{
+                          "id":1,
+                          "startTime":"14:35:00",
+                          "line":{
+                            "id":1,
+                            "name":"1"
+                          },
+                          "finalStop":{
+                            "id":5,
+                            "name":"East Hills Avenue"
+                          }
+                        },
+                        "arrival":"2022-03-08T14:35:00"
+                      }
+                    ]
+                  }
+                """;
+        int busStopId = 1;
+        this.mockMvc.perform(get("/busstops/{busStopId}/timetable", busStopId)
+                        .param("startTime", "2022-03-08T14:00")
+                        .param("durationSeconds", Integer.toString(2 * 60 * 60)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json(expectedResponse));
+
+    }
+
     @Test
     @DisplayName("As a customer, I can display all bus lines that stop at a specified stop.")
     @Sql("/data-test.sql")

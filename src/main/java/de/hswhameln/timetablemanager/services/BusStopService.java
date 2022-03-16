@@ -1,7 +1,7 @@
 package de.hswhameln.timetablemanager.services;
 
-import de.hswhameln.timetablemanager.businessobjects.BusStopSchedulesBO;
 import de.hswhameln.timetablemanager.businessobjects.BusStopScheduleEntryBO;
+import de.hswhameln.timetablemanager.businessobjects.BusStopSchedulesBO;
 import de.hswhameln.timetablemanager.businessobjects.BusStopTimetableBO;
 import de.hswhameln.timetablemanager.businessobjects.BusStopTimetableEntryBO;
 import de.hswhameln.timetablemanager.businessobjects.ScheduleBO;
@@ -97,7 +97,6 @@ public class BusStopService {
         BusStop busStop = this.getBusStop(busStopId);
         List<BusStopScheduleEntryBO> busStopScheduleEntries = getBusStopScheduleEntries(busStop);
 
-
         record DayAndScheduleEntries(int dayOffset, List<BusStopScheduleEntryBO> busStopScheduleEntries) {
             Stream<BusStopTimetableEntryBO> toDayAndScheduleEntryStream(LocalDateTime startTime) {
                 return this.busStopScheduleEntries.stream()
@@ -106,14 +105,11 @@ public class BusStopService {
             }
 
             private static LocalDateTime toLocalDateTime(LocalDateTime startTime, int dayOffset, LocalTime timeOfDay) {
-                if (timeOfDay.isAfter(startTime.toLocalTime())) {
-                    return LocalDateTime.of(startTime.toLocalDate(), timeOfDay).plusDays(dayOffset);
-                } else {
-                    return LocalDateTime.of(startTime.toLocalDate(), timeOfDay).plusDays(dayOffset - 1);
-                }
+                return LocalDateTime.of(startTime.toLocalDate(), timeOfDay).plusDays(dayOffset);
             }
         }
 
+        // stream all busStopScheduleEntries x times with an ever-increasing counter dayOffset until its arrival is after the end time
         List<BusStopTimetableEntryBO> allDayAndScheduleEntries = IntStream.iterate(0, dayOffset -> dayOffset + 1)
                 .mapToObj(dayOffset -> new DayAndScheduleEntries(dayOffset, busStopScheduleEntries))
                 .flatMap(dayAndScheduleEntries -> dayAndScheduleEntries.toDayAndScheduleEntryStream(startTime))
