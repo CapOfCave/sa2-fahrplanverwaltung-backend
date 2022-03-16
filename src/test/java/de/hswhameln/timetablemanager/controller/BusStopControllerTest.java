@@ -219,19 +219,6 @@ class BusStopControllerTest extends IntegrationTest {
 
     @Test
     @Sql("/data-test.sql")
-    void testGetBusStopScheduleNonExistent() throws Exception {
-
-        String expectedResponse = "BusStop with busStopId '7777' was not found. Reason: It does not exist.";
-        int busStopId = 7777;
-        this.mockMvc.perform(get("/busstops/{busStopId}/schedule", busStopId))
-                .andDo(print())
-                .andExpect(status().isNotFound())
-                .andExpect(content().string(expectedResponse));
-
-    }
-
-    @Test
-    @Sql("/data-test.sql")
     void testGetTimetableNonExistent() throws Exception {
 
         String expectedResponse = "BusStop with busStopId '7777' was not found. Reason: It does not exist.";

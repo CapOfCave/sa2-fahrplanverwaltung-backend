@@ -80,18 +80,6 @@ public class BusStopService {
         return this.busStopRepository.findById(id).orElseThrow(() -> new BusStopNotFoundException("busStopId", id));
     }
 
-    /**
-     * Return all bus lines that stop at this bus stop combined with their arrival time (in order of arrival)
-     */
-    @Transactional
-    public BusStopSchedulesBO getBusStopSchedule(long id) throws BusStopNotFoundException {
-        BusStop busStop = this.getBusStop(id);
-
-        List<BusStopScheduleEntryBO> busStopScheduleEntries = getBusStopScheduleEntries(busStop);
-
-        return new BusStopSchedulesBO(busStop, busStopScheduleEntries);
-    }
-
     @Transactional
     public BusStopTimetableBO getTimetable(long busStopId, LocalDateTime startTime, Duration duration) throws BusStopNotFoundException {
         BusStop busStop = this.getBusStop(busStopId);

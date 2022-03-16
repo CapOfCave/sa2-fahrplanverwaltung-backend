@@ -78,12 +78,6 @@ public class BusStopController {
         this.busStopService.deleteBusStop(busStopId);
     }
 
-    @GetMapping("/{busStopId}/schedule")
-    public BusStopSchedulesDto getBusStopSchedule(@PathVariable long busStopId) throws BusStopNotFoundException {
-        BusStopSchedulesBO busStopSchedule = this.busStopService.getBusStopSchedule(busStopId);
-        return this.busStopScheduleToDtoMapper.mapToBusStopSchedulesDto(busStopSchedule);
-    }
-
     @GetMapping("/{busStopId}/timetable")
     public BusStopTimetableDto getTimetable(
             @PathVariable long busStopId,
