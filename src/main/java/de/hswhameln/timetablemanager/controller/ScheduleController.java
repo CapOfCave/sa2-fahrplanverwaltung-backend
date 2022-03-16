@@ -5,6 +5,7 @@ import de.hswhameln.timetablemanager.dto.requests.CreateScheduleRequest;
 import de.hswhameln.timetablemanager.dto.requests.ModifyScheduleRequest;
 import de.hswhameln.timetablemanager.dto.responses.ScheduleOverviewDto;
 import de.hswhameln.timetablemanager.exceptions.NotFoundException;
+import de.hswhameln.timetablemanager.exceptions.ScheduleNotFoundException;
 import de.hswhameln.timetablemanager.mapping.ScheduleToDtoMapper;
 import de.hswhameln.timetablemanager.services.ScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,7 @@ public class ScheduleController {
     }
 
     @DeleteMapping("/{scheduleId}")
-    public void deleteSchedule(@PathVariable long scheduleId) {
+    public void deleteSchedule(@PathVariable long scheduleId) throws ScheduleNotFoundException {
         this.scheduleService.deleteSchedule(scheduleId);
     }
 

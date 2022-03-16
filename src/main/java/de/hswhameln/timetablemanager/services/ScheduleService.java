@@ -12,6 +12,7 @@ import de.hswhameln.timetablemanager.repositories.ScheduleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalTime;
 import java.util.Collection;
 
@@ -30,6 +31,7 @@ public class ScheduleService {
         this.scheduleToBoMapper = scheduleToBoMapper;
     }
 
+    @Transactional
     public ScheduleBO createSchedule(long lineId, LocalTime startTime, boolean reverseDirection) throws NotFoundException {
         Line line = this.lineRepository.findById(lineId).orElseThrow(() -> new LineNotFoundException("lineId", lineId));
         Schedule createdSchedule = new Schedule(line, startTime, reverseDirection);
@@ -37,6 +39,7 @@ public class ScheduleService {
         return this.scheduleToBoMapper.enrichWithTargetDestination(actualSchedule);
     }
 
+    @Transactional
     public ScheduleBO modifySchedule(long scheduleId, LocalTime startTime, Boolean reverseDirection) throws ScheduleNotFoundException {
         Schedule schedule = this.scheduleRepository.findById(scheduleId).orElseThrow(() -> new ScheduleNotFoundException("scheduleId", scheduleId));
         if (startTime != null) {
@@ -50,6 +53,7 @@ public class ScheduleService {
         return this.scheduleToBoMapper.enrichWithTargetDestination(savedSchedule);
     }
 
+    @Transactional
     public Collection<ScheduleBO> getSchedules() {
         return this.scheduleRepository.findAll()
                 .stream()
@@ -58,8 +62,11 @@ public class ScheduleService {
     }
 
 
-    public void deleteSchedule(long scheduleId) {
-        // TODO check integrity
+    @Transactional
+    public void deleteSchedule(long scheduleId) throws ScheduleNotFoundException {
+        if (!this.scheduleRepository.existsById(scheduleId)) {
+            throw new ScheduleNotFoundException("scheduleId", scheduleId);
+        }
         this.scheduleRepository.deleteById(scheduleId);
     }
 
