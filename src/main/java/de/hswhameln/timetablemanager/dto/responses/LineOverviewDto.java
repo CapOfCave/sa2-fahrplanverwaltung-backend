@@ -5,8 +5,6 @@ public class LineOverviewDto {
     private long id;
     private String name;
 
-
-
     public LineOverviewDto() {
     }
 

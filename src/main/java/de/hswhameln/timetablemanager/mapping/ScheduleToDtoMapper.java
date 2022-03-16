@@ -23,7 +23,7 @@ public class ScheduleToDtoMapper {
         LineOverviewDto lineOverviewDto = this.lineToDtoMapper.mapToLineOverviewDto(schedule.getLine());
         BusStopOverviewDto busStopOverviewDto = this.busStopToDtoMapper.mapToBusStopOverviewDto(schedule.getFinalDestination());
 
-        return new ScheduleOverviewDto(schedule.getId(), schedule.getStartTime(), lineOverviewDto, busStopOverviewDto );
+        return new ScheduleOverviewDto(schedule.getId(), schedule.getStartTime(), lineOverviewDto, schedule.isReverseDirection(), busStopOverviewDto );
 
     }
 }
