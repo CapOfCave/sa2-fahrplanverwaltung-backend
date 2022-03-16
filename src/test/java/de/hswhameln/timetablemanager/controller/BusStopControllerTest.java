@@ -301,6 +301,71 @@ class BusStopControllerTest extends IntegrationTest {
     }
 
     @Test
+    @Sql("/data-test.sql")
+    void testGetScheduleForLineLineNonExistent() throws Exception {
+
+        String expectedResponse = "Line with lineId '7777' was not found. Reason: It does not exist.";
+        int busStopId = 1;
+        int lineId = 7777;
+        this.mockMvc.perform(get("/busstops/{busStopId}/schedule/{lineId}", busStopId, lineId))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(expectedResponse));
+
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testGetScheduleForLineBusStopNonExistent() throws Exception {
+
+        String expectedResponse = "BusStop with busStopId '7777' was not found. Reason: It does not exist.";
+        int busStopId = 7777;
+        int lineId = 1;
+        this.mockMvc.perform(get("/busstops/{busStopId}/schedule/{lineId}", busStopId, lineId))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(expectedResponse));
+
+    }
+    @Test
+    @Sql("/data-test.sql")
+    void testGetSchedulesForLine() throws Exception {
+
+        String expectedResponse = """
+                {
+                    "busStop":{
+                      "id":4,
+                      "name":"Dean Avenue"
+                    },
+                    "scheduleEntries":[
+                      {
+                        "schedule":{
+                          "id":1,
+                          "startTime":"14:35:00",
+                          "line":{
+                            "id":1,
+                            "name":"1"
+                          },
+                          "finalStop":{
+                            "id":5,
+                            "name":"East Hills Avenue"
+                          }
+                        },
+                        "arrival":"14:36:00"
+                      }
+                    ]
+                  }
+                """;
+        int busStopId = 4;
+        int lineId = 1;
+        this.mockMvc.perform(get("/busstops/{busStopId}/schedule/{lineId}", busStopId, lineId))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json(expectedResponse));
+
+    }
+
+    @Test
     @DisplayName("As a customer, I can display all bus lines that stop at a specified stop.")
     @Sql("/data-test.sql")
     void testGetBusStop() throws Exception {

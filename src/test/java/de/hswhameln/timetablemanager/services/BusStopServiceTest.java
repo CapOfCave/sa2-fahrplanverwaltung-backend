@@ -8,6 +8,7 @@ import de.hswhameln.timetablemanager.businessobjects.ScheduleBO;
 import de.hswhameln.timetablemanager.entities.BusStop;
 import de.hswhameln.timetablemanager.exceptions.BusStopNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.DeletionForbiddenException;
+import de.hswhameln.timetablemanager.exceptions.LineNotFoundException;
 import de.hswhameln.timetablemanager.exceptions.NameAlreadyTakenException;
 import de.hswhameln.timetablemanager.repositories.BusStopRepository;
 import de.hswhameln.timetablemanager.test.SpringAssistedUnitTest;
@@ -468,5 +469,60 @@ class BusStopServiceTest extends SpringAssistedUnitTest {
                 .isEqualTo(LocalDateTime.of(2022, 1, 2, 6, 0));
 
     }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testGetSchedulesForLineBusStopNonExistent() {
+        assertThrows(BusStopNotFoundException.class, () -> this.objectUnderTest.getSchedulesForLineAtBusStop(7777L, 1L));
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testGetSchedulesForLineLineNonExistent() {
+        assertThrows(LineNotFoundException.class, () -> this.objectUnderTest.getSchedulesForLineAtBusStop(1L, 7777L));
+    }
+
+    @Test
+    @Sql("/getSchedulesForLineData.sql")
+    void testGetSchedulesForLine() throws BusStopNotFoundException, LineNotFoundException {
+        BusStopSchedulesBO schedulesForLineAtBusStop = this.objectUnderTest.getSchedulesForLineAtBusStop(2L, 1L);
+
+        assertEquals(2L, schedulesForLineAtBusStop.getBusStop().getId());
+        assertThat(schedulesForLineAtBusStop.getScheduleEntries()).hasSize(2);
+        ArrayList<BusStopScheduleEntryBO> scheduleEntries = new ArrayList<>(schedulesForLineAtBusStop.getScheduleEntries());
+
+        // first entry: schedule 1 / default direction
+        BusStopScheduleEntryBO firstEntry = scheduleEntries.get(0);
+        assertThat(firstEntry)
+                .extracting(BusStopScheduleEntryBO::getSchedule)
+                .extracting(
+                        ScheduleBO::getId,
+                        ScheduleBO::getStartTime,
+                        schedule -> schedule.getFinalDestination().getName(),
+                        schedule -> schedule.getLine().getName()
+                )
+                .containsExactly(1L, LocalTime.of(6, 0), "Camp Street", "L1");
+        assertThat(firstEntry)
+                .extracting(BusStopScheduleEntryBO::getArrival)
+                .isEqualTo(LocalTime.of(6, 1));
+
+
+        // second entry: schedule 2 / reverse direction
+        BusStopScheduleEntryBO secondEntry = scheduleEntries.get(1);
+        assertThat(secondEntry)
+                .extracting(BusStopScheduleEntryBO::getSchedule)
+                .extracting(
+                        ScheduleBO::getId,
+                        ScheduleBO::getStartTime,
+                        schedule -> schedule.getFinalDestination().getName(),
+                        schedule -> schedule.getLine().getName()
+                )
+                .containsExactly(2L, LocalTime.of(11, 0), "Abbey Road", "L1");
+        assertThat(secondEntry)
+                .extracting(BusStopScheduleEntryBO::getArrival)
+                .isEqualTo(LocalTime.of( 11, 2));
+
+    }
+
 
 }
