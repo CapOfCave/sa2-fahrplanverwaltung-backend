@@ -199,6 +199,29 @@ class LineControllerTest extends IntegrationTest {
     }
 
     @Test
+    @Sql("/data-test.sql")
+    void testRenameLineNameAlreadyTaken() throws Exception {
+
+        String requestBody = """
+                {
+                    "name": "S65"
+                }
+                """;
+
+        String expectedResponse = "Der Wert 'S65' ist ungültig für Argument 'Name'. Grund: Name ist belegt.";
+
+
+        this.mockMvc.perform(
+                        patch("/lines/{lineId}/", 2)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(expectedResponse));
+
+    }
+
+    @Test
     @DisplayName("As an employee, I can delete a bus line that is not included in any schedule.")
     @Sql("/data-test.sql")
     void testDeleteLine() throws Exception {

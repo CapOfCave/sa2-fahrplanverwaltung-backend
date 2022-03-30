@@ -60,7 +60,7 @@ public class LineController {
     }
 
     @PatchMapping("/{lineId}")
-    public LineDetailDto modifyLine(@PathVariable long lineId, @RequestBody ModifyLineRequest modifyLineRequest) throws NotFoundException {
+    public LineDetailDto modifyLine(@PathVariable long lineId, @RequestBody ModifyLineRequest modifyLineRequest) throws NotFoundException, NameAlreadyTakenException {
         Line line =  this.lineService.modifyLine(lineId, modifyLineRequest.getName());
         return this.lineToDtoMapper.mapToLineDetailDto(line);
     }

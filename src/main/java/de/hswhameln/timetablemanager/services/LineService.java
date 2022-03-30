@@ -43,8 +43,11 @@ public class LineService {
         this.lineRepository.deleteById(id);
     }
 
-    public Line modifyLine(long id, String name) throws LineNotFoundException {
+    public Line modifyLine(long id, String name) throws LineNotFoundException, NameAlreadyTakenException {
         Line line = getLine(id);
+        if (this.lineRepository.existsByName(name)) {
+            throw new NameAlreadyTakenException(name);
+        }
         line.setName(name);
         return this.lineRepository.save(line);
     }
