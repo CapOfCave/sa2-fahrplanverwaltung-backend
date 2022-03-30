@@ -114,9 +114,10 @@ public class BusStopService {
     @Transactional
     public BusStopSchedulesBO getSchedulesForLineAtBusStop(long busStopId, long lineId) throws BusStopNotFoundException, LineNotFoundException {
         BusStop busStop = this.getBusStop(busStopId);
+        Line line = this.lineRepository.findById(lineId)
+                .orElseThrow(() -> new LineNotFoundException("ID", lineId));
 
-        List<BusStopScheduleEntryBO> busStopScheduleEntries = this.lineRepository.findById(lineId)
-                .orElseThrow(() -> new LineNotFoundException("ID", lineId))
+        List<BusStopScheduleEntryBO> busStopScheduleEntries = line
                 .getSchedules()
                 .stream()
                 .map(this.scheduleToBoMapper::enrichWithTargetDestination)
@@ -124,7 +125,7 @@ public class BusStopService {
                 .flatMap(Collection::stream)
                 .sorted(Comparator.comparing(BusStopScheduleEntryBO::getArrival))
                 .toList();
-        return new BusStopSchedulesBO(busStop, busStopScheduleEntries);
+        return new BusStopSchedulesBO(busStop, line, busStopScheduleEntries);
 
 
     }
