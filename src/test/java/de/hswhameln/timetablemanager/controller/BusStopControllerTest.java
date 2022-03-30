@@ -159,6 +159,29 @@ class BusStopControllerTest extends IntegrationTest {
     }
 
     @Test
+    @DisplayName("When trying to rename a bus stop to a name that is already taken.")
+    @Sql("/data-test.sql")
+    void testRenameBusStopNameTaken() throws Exception {
+
+        String requestBody = """
+                {
+                    "name": "Abbey Road"
+                }
+                """;
+
+        String expectedResponse = "Der Wert 'Abbey Road' ist ungültig für Argument 'Name'. Grund: Name ist belegt.";
+
+        this.mockMvc.perform(
+                        patch("/busstops/{busStopId}/", 1)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(expectedResponse));
+
+    }
+
+    @Test
     @DisplayName("As an employee, I can delete a stop that is not assigned to any bus line.")
     @Sql("/data-test.sql")
     void testDeleteBusStop() throws Exception {

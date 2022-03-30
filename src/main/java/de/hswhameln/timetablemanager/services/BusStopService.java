@@ -70,8 +70,11 @@ public class BusStopService {
         this.busStopRepository.deleteById(id);
     }
 
-    public BusStop modifyBusStop(long id, String name) throws BusStopNotFoundException {
+    public BusStop modifyBusStop(long id, String name) throws BusStopNotFoundException, NameAlreadyTakenException {
         BusStop busStop = getBusStop(id);
+        if (this.busStopRepository.existsByName(name)) {
+            throw new NameAlreadyTakenException(name);
+        }
         busStop.setName(name);
         return this.busStopRepository.save(busStop);
     }
