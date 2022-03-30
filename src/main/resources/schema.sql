@@ -16,7 +16,7 @@ CREATE TABLE LINE_STOP
     bus_stop_id          bigint  not null,
     line_id              bigint  not null,
     index                integer not null,
-    seconds_to_next_stop int,
+    seconds_to_next_stop integer,
     CONSTRAINT fk_bus_stop_id
         FOREIGN KEY (bus_stop_id)
             REFERENCES BUS_STOP (id),

@@ -179,7 +179,7 @@ class LineStopServiceTest extends SpringAssistedUnitTest {
     @Sql("/data-test.sql")
     void testRemoveBusStopLineStopNotOnThisLine() {
         LineStopNotFoundException lineStopNotFoundException = assertThrows(LineStopNotFoundException.class, () -> this.lineStopService.removeBusStop(2, 1L));
-        assertThat(lineStopNotFoundException.getMessage()).contains("It does not exist on line 2, but on line 1.");
+        assertThat(lineStopNotFoundException.getMessage()).contains("Er existiert nicht auf Buslinie 2, sondern auf Buslinie 1.");
     }
 
     @Test

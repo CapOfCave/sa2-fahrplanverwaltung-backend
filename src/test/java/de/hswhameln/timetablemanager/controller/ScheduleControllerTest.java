@@ -104,7 +104,7 @@ class ScheduleControllerTest extends IntegrationTest {
                 }
                 """;
 
-        String expectedResponse = "Line with lineId '7777' was not found. Reason: It does not exist.";
+        String expectedResponse = "Buslinie mit ID '7777' konnte nicht gefunden werden. Grund: Sie existiert nicht.";
         this.mockMvc.perform(
                         post("/schedules/")
                                 .contentType(MediaType.APPLICATION_JSON)
@@ -130,7 +130,7 @@ class ScheduleControllerTest extends IntegrationTest {
     @DisplayName("When trying to delete a schedule with an invalid scheduleId a proper exception is thrown")
     @Sql("/data-test.sql")
     void testDeleteScheduleNotFound() throws Exception {
-        String expectedResponse = "Schedule with scheduleId '7777' was not found. Reason: It does not exist.";
+        String expectedResponse = "Fahrplan mit ID '7777' konnte nicht gefunden werden. Grund: Er existiert nicht.";
         this.mockMvc.perform(
                         delete("/schedules/{scheduleId}", 7777L))
                 .andDo(print())
@@ -188,7 +188,7 @@ class ScheduleControllerTest extends IntegrationTest {
                    "reverseDirection": true
                 }
                 """;
-        String expectedResponse = "Schedule with scheduleId '7777' was not found. Reason: It does not exist.";
+        String expectedResponse = "Fahrplan mit ID '7777' konnte nicht gefunden werden. Grund: Er existiert nicht.";
         this.mockMvc.perform(
                         patch("/schedules/{scheduleId}", 7777L)
                                 .contentType(MediaType.APPLICATION_JSON)

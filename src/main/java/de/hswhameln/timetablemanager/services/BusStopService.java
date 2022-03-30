@@ -65,19 +65,22 @@ public class BusStopService {
     public void deleteBusStop(long id) throws BusStopNotFoundException, DeletionForbiddenException {
         BusStop busStop = getBusStop(id);
         if (!busStop.getLineStops().isEmpty()) {
-            throw new DeletionForbiddenException("BusStop", id, "This BusStop is part of at least one line.");
+            throw new DeletionForbiddenException("Bushaltestelle", id, "Diese Bushaltestelle ist Bestandteil mindestens einer Buslinie.");
         }
         this.busStopRepository.deleteById(id);
     }
 
-    public BusStop modifyBusStop(long id, String name) throws BusStopNotFoundException {
+    public BusStop modifyBusStop(long id, String name) throws BusStopNotFoundException, NameAlreadyTakenException {
         BusStop busStop = getBusStop(id);
+        if (this.busStopRepository.existsByName(name)) {
+            throw new NameAlreadyTakenException(name);
+        }
         busStop.setName(name);
         return this.busStopRepository.save(busStop);
     }
 
     public BusStop getBusStop(long id) throws BusStopNotFoundException {
-        return this.busStopRepository.findById(id).orElseThrow(() -> new BusStopNotFoundException("busStopId", id));
+        return this.busStopRepository.findById(id).orElseThrow(() -> new BusStopNotFoundException("ID", id));
     }
 
     @Transactional
@@ -111,9 +114,10 @@ public class BusStopService {
     @Transactional
     public BusStopSchedulesBO getSchedulesForLineAtBusStop(long busStopId, long lineId) throws BusStopNotFoundException, LineNotFoundException {
         BusStop busStop = this.getBusStop(busStopId);
+        Line line = this.lineRepository.findById(lineId)
+                .orElseThrow(() -> new LineNotFoundException("ID", lineId));
 
-        List<BusStopScheduleEntryBO> busStopScheduleEntries = this.lineRepository.findById(lineId)
-                .orElseThrow(() -> new LineNotFoundException("lineId", lineId))
+        List<BusStopScheduleEntryBO> busStopScheduleEntries = line
                 .getSchedules()
                 .stream()
                 .map(this.scheduleToBoMapper::enrichWithTargetDestination)
@@ -121,7 +125,7 @@ public class BusStopService {
                 .flatMap(Collection::stream)
                 .sorted(Comparator.comparing(BusStopScheduleEntryBO::getArrival))
                 .toList();
-        return new BusStopSchedulesBO(busStop, busStopScheduleEntries);
+        return new BusStopSchedulesBO(busStop, line, busStopScheduleEntries);
 
 
     }

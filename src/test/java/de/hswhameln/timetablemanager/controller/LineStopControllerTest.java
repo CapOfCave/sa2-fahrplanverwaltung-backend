@@ -98,7 +98,7 @@ class LineStopControllerTest extends IntegrationTest {
                  }
                 """;
 
-        String expectedResponse = "Line with lineId '7777' was not found. Reason: It does not exist.";
+        String expectedResponse = "Buslinie mit ID '7777' konnte nicht gefunden werden. Grund: Sie existiert nicht.";
 
         this.mockMvc.perform(
                         post("/lines/{lineId}/busstops", lineId)
@@ -124,7 +124,7 @@ class LineStopControllerTest extends IntegrationTest {
                  }
                 """;
 
-        String expectedResponse = "BusStop with busStopId '7777' was not found. Reason: It does not exist.";
+        String expectedResponse = "Bushaltestelle mit ID '7777' konnte nicht gefunden werden. Grund: Sie existiert nicht.";
 
         this.mockMvc.perform(
                         post("/lines/{lineId}/busstops", lineId)
@@ -150,7 +150,7 @@ class LineStopControllerTest extends IntegrationTest {
                  }
                 """;
 
-        String expectedResponse = "The value '7777' is invalid for argument 'targetIndex'. Reason: It must not be greater than the number of stops on this line, which is 3.";
+        String expectedResponse = "Der Wert '7777' ist ungültig für Argument 'Ziel-Index'. Grund: Er darf nicht größer als die Anzahl an der Halte auf dieser Linie, die 3 beträgt.";
 
         this.mockMvc.perform(
                         post("/lines/{lineId}/busstops", lineId)
@@ -176,7 +176,7 @@ class LineStopControllerTest extends IntegrationTest {
                  }
                 """;
 
-        String expectedResponse = "The value '-1' is invalid for argument 'targetIndex'. Reason: It must be greater than 0.";
+        String expectedResponse = "Der Wert '-1' ist ungültig für Argument 'Ziel-Index'. Grund: Er muss größer als 0 sein.";
 
         this.mockMvc.perform(
                         post("/lines/{lineId}/busstops", lineId)
@@ -235,7 +235,7 @@ class LineStopControllerTest extends IntegrationTest {
         int lineId = 7777;
         int lineStopId = 2;
 
-        String expectedResponse = "Line with lineId '7777' was not found. Reason: It does not exist.";
+        String expectedResponse = "Buslinie mit ID '7777' konnte nicht gefunden werden. Grund: Sie existiert nicht.";
 
         this.mockMvc.perform(
                         delete("/lines/{lineId}/busstops/{lineStopId}", lineId, lineStopId))
@@ -253,7 +253,7 @@ class LineStopControllerTest extends IntegrationTest {
         int lineId = 1;
         int lineStopId = 7777;
 
-        String expectedResponse = "LineStop with lineStopId '7777' was not found. Reason: It does not exist.";
+        String expectedResponse = "Buslinienhalt mit ID '7777' konnte nicht gefunden werden. Grund: Er existiert nicht.";
 
         this.mockMvc.perform(
                         delete("/lines/{lineId}/busstops/{lineStopId}", lineId, lineStopId))
@@ -271,7 +271,7 @@ class LineStopControllerTest extends IntegrationTest {
         int lineId = 1;
         int lineStopId = 4;
 
-        String expectedResponse = "LineStop with lineStopId '4' was not found. Reason: It does not exist on line 1, but on line 2.";
+        String expectedResponse = "Buslinienhalt mit ID '4' konnte nicht gefunden werden. Grund: Er existiert nicht auf Buslinie 1, sondern auf Buslinie 2.";
 
         this.mockMvc.perform(
                         delete("/lines/{lineId}/busstops/{lineStopId}", lineId, lineStopId))
@@ -287,7 +287,7 @@ class LineStopControllerTest extends IntegrationTest {
 
         int lineId = 7777;
 
-        String expectedResponse = "Line with lineId '7777' was not found. Reason: It does not exist.";
+        String expectedResponse = "Buslinie mit ID '7777' konnte nicht gefunden werden. Grund: Sie existiert nicht.";
 
         this.mockMvc.perform(
                         get("/lines/{lineId}/busstops/", lineId))
@@ -364,7 +364,7 @@ class LineStopControllerTest extends IntegrationTest {
                  }
                 """;
 
-        String expectedResponse = "The value '-1' is invalid for argument 'targetIndex'. Reason: It must be greater than 0.";
+        String expectedResponse = "Der Wert '-1' ist ungültig für Argument 'Ziel-Index'. Grund: Er muss größer als 0 sein.";
 
         this.mockMvc.perform(
                         patch("/lines/{lineId}/busstops/{lineStopId}", lineId, lineStopId)
@@ -391,7 +391,7 @@ class LineStopControllerTest extends IntegrationTest {
                  }
                 """;
 
-        String expectedResponse = "The value '7777' is invalid for argument 'targetIndex'. Reason: It must be strictly smaller than the number of stops on this line, which is 3.";
+        String expectedResponse = "Der Wert '7777' ist ungültig für Argument 'Ziel-Index'. Grund: Er muss kleiner sein als die Anzahl der Halte auf dieser Linie, die 3 beträgt.";
 
         this.mockMvc.perform(
                         patch("/lines/{lineId}/busstops/{lineStopId}", lineId, lineStopId)

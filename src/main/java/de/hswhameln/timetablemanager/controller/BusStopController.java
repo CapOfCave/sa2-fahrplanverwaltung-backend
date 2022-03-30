@@ -62,7 +62,7 @@ public class BusStopController {
     }
 
     @PatchMapping("/{busStopId}")
-    public BusStopDetailDto modifyBusStop(@PathVariable long busStopId, @RequestBody ModifyBusStopRequest modifyBusStopRequest) throws BusStopNotFoundException {
+    public BusStopDetailDto modifyBusStop(@PathVariable long busStopId, @RequestBody ModifyBusStopRequest modifyBusStopRequest) throws BusStopNotFoundException, NameAlreadyTakenException {
         BusStop busStop = this.busStopService.modifyBusStop(busStopId, modifyBusStopRequest.getName());
         return this.busStopToDtoMapper.mapToBusStopDetailDto(busStop);
     }

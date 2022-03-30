@@ -33,7 +33,7 @@ public class ScheduleService {
 
     @Transactional
     public ScheduleBO createSchedule(long lineId, LocalTime startTime, boolean reverseDirection) throws NotFoundException {
-        Line line = this.lineRepository.findById(lineId).orElseThrow(() -> new LineNotFoundException("lineId", lineId));
+        Line line = this.lineRepository.findById(lineId).orElseThrow(() -> new LineNotFoundException("ID", lineId));
         Schedule createdSchedule = new Schedule(line, startTime, reverseDirection);
         Schedule actualSchedule = this.scheduleRepository.save(createdSchedule);
         return this.scheduleToBoMapper.enrichWithTargetDestination(actualSchedule);
@@ -41,7 +41,7 @@ public class ScheduleService {
 
     @Transactional
     public ScheduleBO modifySchedule(long scheduleId, LocalTime startTime, Boolean reverseDirection) throws ScheduleNotFoundException {
-        Schedule schedule = this.scheduleRepository.findById(scheduleId).orElseThrow(() -> new ScheduleNotFoundException("scheduleId", scheduleId));
+        Schedule schedule = this.scheduleRepository.findById(scheduleId).orElseThrow(() -> new ScheduleNotFoundException("ID", scheduleId));
         if (startTime != null) {
             schedule.setStartTime(startTime);
 
@@ -65,7 +65,7 @@ public class ScheduleService {
     @Transactional
     public void deleteSchedule(long scheduleId) throws ScheduleNotFoundException {
         if (!this.scheduleRepository.existsById(scheduleId)) {
-            throw new ScheduleNotFoundException("scheduleId", scheduleId);
+            throw new ScheduleNotFoundException("ID", scheduleId);
         }
         this.scheduleRepository.deleteById(scheduleId);
     }

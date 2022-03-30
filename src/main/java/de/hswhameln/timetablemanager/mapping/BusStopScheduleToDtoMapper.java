@@ -9,6 +9,7 @@ import de.hswhameln.timetablemanager.dto.responses.BusStopSchedulesDto;
 import de.hswhameln.timetablemanager.dto.responses.BusStopScheduleEntryDto;
 import de.hswhameln.timetablemanager.dto.responses.BusStopTimetableDto;
 import de.hswhameln.timetablemanager.dto.responses.BusStopTimetableEntryDto;
+import de.hswhameln.timetablemanager.dto.responses.LineOverviewDto;
 import de.hswhameln.timetablemanager.dto.responses.ScheduleOverviewDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,21 +20,25 @@ import java.util.List;
 public class BusStopScheduleToDtoMapper {
 
     private final BusStopToDtoMapper busStopToDtoMapper;
+    private final LineToDtoMapper lineToDtoMapper;
     private final ScheduleToDtoMapper scheduleToDtoMapper;
 
     @Autowired
-    public BusStopScheduleToDtoMapper(BusStopToDtoMapper busStopToDtoMapper, ScheduleToDtoMapper scheduleToDtoMapper) {
+    public BusStopScheduleToDtoMapper(BusStopToDtoMapper busStopToDtoMapper, de.hswhameln.timetablemanager.mapping.LineToDtoMapper lineToDtoMapper, ScheduleToDtoMapper scheduleToDtoMapper) {
         this.busStopToDtoMapper = busStopToDtoMapper;
+        this.lineToDtoMapper = lineToDtoMapper;
         this.scheduleToDtoMapper = scheduleToDtoMapper;
     }
 
     public BusStopSchedulesDto mapToBusStopSchedulesDto(BusStopSchedulesBO busStopSchedule) {
         BusStopOverviewDto busStopOverviewDto = this.busStopToDtoMapper.mapToBusStopOverviewDto(busStopSchedule.getBusStop());
+        LineOverviewDto lineOverviewDto = this.lineToDtoMapper.mapToLineOverviewDto(busStopSchedule.getLine());
+
         List<BusStopScheduleEntryDto> scheduleEntries = busStopSchedule.getScheduleEntries()
                 .stream()
                 .map(this::mapToBusStopScheduleEntryDto)
                 .toList();
-        return new BusStopSchedulesDto(busStopOverviewDto, scheduleEntries);
+        return new BusStopSchedulesDto(busStopOverviewDto, lineOverviewDto, scheduleEntries);
     }
 
     private BusStopScheduleEntryDto mapToBusStopScheduleEntryDto(BusStopScheduleEntryBO busStopScheduleEntry) {

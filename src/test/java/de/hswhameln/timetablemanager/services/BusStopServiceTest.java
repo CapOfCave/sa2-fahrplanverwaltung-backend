@@ -120,7 +120,7 @@ class BusStopServiceTest extends SpringAssistedUnitTest {
 
     @Test
     @Sql("/data-test.sql")
-    void testModifyBusStop() throws BusStopNotFoundException {
+    void testModifyBusStop() throws BusStopNotFoundException, NameAlreadyTakenException {
         this.objectUnderTest.modifyBusStop(1L, "Rainy Road");
         BusStop newBusStop = this.busStopRepository.findById(1L).orElseThrow();
         assertEquals("Rainy Road", newBusStop.getName());
@@ -130,6 +130,12 @@ class BusStopServiceTest extends SpringAssistedUnitTest {
     @Sql("/data-test.sql")
     void testModifyBusStopNonExistent() {
         assertThrows(BusStopNotFoundException.class, () -> this.objectUnderTest.modifyBusStop(7777L, "Rainy Road"));
+    }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testModifyBusStopLineTaken() {
+        assertThrows(NameAlreadyTakenException.class, () -> this.objectUnderTest.modifyBusStop(1L, "Abbey Road"));
     }
 
     @Test
