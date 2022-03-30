@@ -38,7 +38,7 @@ public class LineService {
     public void deleteLine(long id) throws LineNotFoundException, DeletionForbiddenException {
         Line line = getLine(id);
         if (!line.getSchedules().isEmpty()) {
-            throw new DeletionForbiddenException("Line", id, "This Line is part of at least one Schedule.");
+            throw new DeletionForbiddenException("Buslinie", id, "Diese Buslinie ist Teil mindestens eines Fahrplans.");
         }
         this.lineRepository.deleteById(id);
     }
@@ -50,7 +50,7 @@ public class LineService {
     }
 
     public Line getLine(long id) throws LineNotFoundException {
-        return this.lineRepository.findById(id).orElseThrow(() -> new LineNotFoundException("lineId", id));
+        return this.lineRepository.findById(id).orElseThrow(() -> new LineNotFoundException("ID", id));
     }
 
 }

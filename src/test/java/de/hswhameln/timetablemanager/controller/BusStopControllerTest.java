@@ -77,7 +77,7 @@ class BusStopControllerTest extends IntegrationTest {
                 }
                 """;
 
-        String expectedResponseCreate = "The value 'Abbey Road' is invalid for argument 'name'. Reason: Name is already taken.";
+        String expectedResponseCreate = "Der Wert 'Abbey Road' ist ungültig für Argument 'Name'. Grund: Name ist belegt.";
 
         this.mockMvc.perform(
                         post("/busstops/")
@@ -90,7 +90,7 @@ class BusStopControllerTest extends IntegrationTest {
     }
 
     @Test
-    @DisplayName("As an employee, I can rename bus stops.")
+    @DisplayName("As an employee, I can rename a bus stops.")
     @Sql("/data-test.sql")
     void testRenameBusStop() throws Exception {
 
@@ -146,7 +146,7 @@ class BusStopControllerTest extends IntegrationTest {
                 }
                 """;
 
-        String expectedResponse = "BusStop with busStopId '7777' was not found. Reason: It does not exist.";
+        String expectedResponse = "Bushaltestelle mit ID '7777' konnte nicht gefunden werden. Grund: Sie existiert nicht.";
 
         this.mockMvc.perform(
                         patch("/busstops/{busStopId}/", 7777)
@@ -181,7 +181,7 @@ class BusStopControllerTest extends IntegrationTest {
     @Sql("/data-test.sql")
     void testDeleteBusStopForbidden() throws Exception {
 
-        String expectedResponse = "Could not delete BusStop with id 1. Reason: This BusStop is part of at least one line.";
+        String expectedResponse = "Bushaltestelle mit ID 1 konnte nicht gelöscht werden. Grund: Diese Bushaltestelle ist Bestandteil mindestens einer Buslinie.";
         this.mockMvc.perform(
                         delete("/busstops/{busStopId}/", 1))
                 .andDo(print())
@@ -194,7 +194,7 @@ class BusStopControllerTest extends IntegrationTest {
     @Sql("/data-test.sql")
     void testDeleteBusStopNonExistent() throws Exception {
 
-        String expectedResponse = "BusStop with busStopId '7777' was not found. Reason: It does not exist.";
+        String expectedResponse = "Bushaltestelle mit ID '7777' konnte nicht gefunden werden. Grund: Sie existiert nicht.";
         int busStopId = 7777;
         this.mockMvc.perform(
                         delete("/busstops/{busStopId}/", busStopId))
@@ -208,7 +208,7 @@ class BusStopControllerTest extends IntegrationTest {
     @Sql("/data-test.sql")
     void testGetBusStopNonExistent() throws Exception {
 
-        String expectedResponse = "BusStop with busStopId '7777' was not found. Reason: It does not exist.";
+        String expectedResponse = "Bushaltestelle mit ID '7777' konnte nicht gefunden werden. Grund: Sie existiert nicht.";
         int busStopId = 7777;
         this.mockMvc.perform(get("/busstops/{busStopId}/", busStopId))
                 .andDo(print())
@@ -221,7 +221,7 @@ class BusStopControllerTest extends IntegrationTest {
     @Sql("/data-test.sql")
     void testGetTimetableNonExistent() throws Exception {
 
-        String expectedResponse = "BusStop with busStopId '7777' was not found. Reason: It does not exist.";
+        String expectedResponse = "Bushaltestelle mit ID '7777' konnte nicht gefunden werden. Grund: Sie existiert nicht.";
         int busStopId = 7777;
         this.mockMvc.perform(get("/busstops/{busStopId}/timetable", busStopId)
                         .param("startTime", "2022-03-08T22:04")
@@ -291,7 +291,7 @@ class BusStopControllerTest extends IntegrationTest {
     @Sql("/data-test.sql")
     void testGetScheduleForLineLineNonExistent() throws Exception {
 
-        String expectedResponse = "Line with lineId '7777' was not found. Reason: It does not exist.";
+        String expectedResponse = "Buslinie mit ID '7777' konnte nicht gefunden werden. Grund: Sie existiert nicht.";
         int busStopId = 1;
         int lineId = 7777;
         this.mockMvc.perform(get("/busstops/{busStopId}/schedule/{lineId}", busStopId, lineId))
@@ -305,7 +305,7 @@ class BusStopControllerTest extends IntegrationTest {
     @Sql("/data-test.sql")
     void testGetScheduleForLineBusStopNonExistent() throws Exception {
 
-        String expectedResponse = "BusStop with busStopId '7777' was not found. Reason: It does not exist.";
+        String expectedResponse = "Bushaltestelle mit ID '7777' konnte nicht gefunden werden. Grund: Sie existiert nicht.";
         int busStopId = 7777;
         int lineId = 1;
         this.mockMvc.perform(get("/busstops/{busStopId}/schedule/{lineId}", busStopId, lineId))

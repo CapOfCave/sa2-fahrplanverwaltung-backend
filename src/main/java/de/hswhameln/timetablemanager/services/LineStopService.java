@@ -33,7 +33,7 @@ public class LineStopService {
 
     public List<LineStop> getBusStops(long lineId) throws LineNotFoundException {
         if (!this.lineRepository.existsById(lineId)) {
-            throw new LineNotFoundException("lineId", lineId);
+            throw new LineNotFoundException("ID", lineId);
         }
         return this.lineStopRepository.findByLineIdOrderByIndex(lineId);
     }
@@ -41,7 +41,7 @@ public class LineStopService {
     @Transactional
     public void addBusStop(long lineId, long busStopId, Integer secondsToNextStop, int targetIndex) throws LineNotFoundException, BusStopNotFoundException, InvalidArgumentException {
         var line = getLineById(lineId);
-        var busStop = this.busStopRepository.findById(busStopId).orElseThrow(() -> new BusStopNotFoundException("busStopId", busStopId));
+        var busStop = this.busStopRepository.findById(busStopId).orElseThrow(() -> new BusStopNotFoundException("ID", busStopId));
         validateTargetIndex(targetIndex, line, true);
 
         LineStop lineStop = new LineStop(secondsToNextStop, line, busStop);
@@ -104,28 +104,28 @@ public class LineStopService {
     }
 
     private Line getLineById(long lineId) throws LineNotFoundException {
-        return this.lineRepository.findById(lineId).orElseThrow(() -> new LineNotFoundException("lineId", lineId));
+        return this.lineRepository.findById(lineId).orElseThrow(() -> new LineNotFoundException("ID", lineId));
     }
 
     private LineStop getLineStopById(long lineStopId) throws LineStopNotFoundException {
-        return this.lineStopRepository.findById(lineStopId).orElseThrow(() -> new LineStopNotFoundException("lineStopId", lineStopId));
+        return this.lineStopRepository.findById(lineStopId).orElseThrow(() -> new LineStopNotFoundException("ID", lineStopId));
     }
 
     private void validateLineStopLineId(long lineId, LineStop lineStop) throws LineStopNotFoundException {
         if (lineStop.getLine().getId() != lineId) {
-            throw new LineStopNotFoundException("lineStopId", lineStop.getId(), String.format("It does not exist on line %d, but on line %d.", lineId, lineStop.getLine().getId()));
+            throw new LineStopNotFoundException("ID", lineStop.getId(), String.format("Er existiert nicht auf Buslinie %d, sondern auf Buslinie %d.", lineId, lineStop.getLine().getId()));
         }
     }
     private void validateTargetIndex(Integer targetIndex, Line line, boolean allowAppending) throws InvalidArgumentException {
         if (targetIndex < 0 ) {
-            throw new InvalidArgumentException("targetIndex", targetIndex, "It must be greater than 0.");
+            throw new InvalidArgumentException("Ziel-Index", targetIndex, "Er muss größer als 0 sein.");
         }
         int maxIndex = line.getLineStops().size() - (allowAppending ? 0 : 1);
-        String formatString = allowAppending ? "It must not be greater than the number of stops on this line, which is %d."
-                : "It must be strictly smaller than the number of stops on this line, which is %d.";
+        String formatString = allowAppending ? "Er darf nicht größer als die Anzahl an der Halte auf dieser Linie, die %d beträgt."
+                : "Er muss kleiner sein als die Anzahl der Halte auf dieser Linie, die %d beträgt.";
 
         if (targetIndex > maxIndex) {
-            throw new InvalidArgumentException("targetIndex", targetIndex, String.format(formatString, line.getLineStops().size()));
+            throw new InvalidArgumentException("Ziel-Index", targetIndex, String.format(formatString, line.getLineStops().size()));
         }
     }
 

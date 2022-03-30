@@ -65,7 +65,7 @@ public class BusStopService {
     public void deleteBusStop(long id) throws BusStopNotFoundException, DeletionForbiddenException {
         BusStop busStop = getBusStop(id);
         if (!busStop.getLineStops().isEmpty()) {
-            throw new DeletionForbiddenException("BusStop", id, "This BusStop is part of at least one line.");
+            throw new DeletionForbiddenException("Bushaltestelle", id, "Diese Bushaltestelle ist Bestandteil mindestens einer Buslinie.");
         }
         this.busStopRepository.deleteById(id);
     }
@@ -77,7 +77,7 @@ public class BusStopService {
     }
 
     public BusStop getBusStop(long id) throws BusStopNotFoundException {
-        return this.busStopRepository.findById(id).orElseThrow(() -> new BusStopNotFoundException("busStopId", id));
+        return this.busStopRepository.findById(id).orElseThrow(() -> new BusStopNotFoundException("ID", id));
     }
 
     @Transactional
@@ -113,7 +113,7 @@ public class BusStopService {
         BusStop busStop = this.getBusStop(busStopId);
 
         List<BusStopScheduleEntryBO> busStopScheduleEntries = this.lineRepository.findById(lineId)
-                .orElseThrow(() -> new LineNotFoundException("lineId", lineId))
+                .orElseThrow(() -> new LineNotFoundException("ID", lineId))
                 .getSchedules()
                 .stream()
                 .map(this.scheduleToBoMapper::enrichWithTargetDestination)

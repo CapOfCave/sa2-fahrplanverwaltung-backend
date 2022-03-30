@@ -79,7 +79,7 @@ class LineControllerTest extends IntegrationTest {
                 }
                 """;
 
-        String expectedResponseCreate = "The value 'S65' is invalid for argument 'name'. Reason: Name is already taken.";
+        String expectedResponseCreate = "Der Wert 'S65' ist ungültig für Argument 'Name'. Grund: Name ist belegt.";
 
         this.mockMvc.perform(
                         post("/lines/")
@@ -184,7 +184,7 @@ class LineControllerTest extends IntegrationTest {
                 }
                 """;
 
-        String expectedResponse = "Line with lineId '7777' was not found. Reason: It does not exist.";
+        String expectedResponse = "Buslinie mit ID '7777' konnte nicht gefunden werden. Grund: Sie existiert nicht.";
 
         // verify that rename is persisted
 
@@ -219,7 +219,7 @@ class LineControllerTest extends IntegrationTest {
     @Sql("/data-test.sql")
     void testDeleteLineForbidden() throws Exception {
 
-        String expectedResponse = "Could not delete Line with id 1. Reason: This Line is part of at least one Schedule.";
+        String expectedResponse = "Buslinie mit ID 1 konnte nicht gelöscht werden. Grund: Diese Buslinie ist Teil mindestens eines Fahrplans.";
         this.mockMvc.perform(
                         delete("/lines/{lineId}/", 1))
                 .andDo(print())
@@ -233,7 +233,7 @@ class LineControllerTest extends IntegrationTest {
     @Sql("/data-test.sql")
     void testDeleteLineLineDoesNotExist() throws Exception {
         int lineId = 7777;
-        String expectedResponse = "Line with lineId '7777' was not found. Reason: It does not exist.";
+        String expectedResponse = "Buslinie mit ID '7777' konnte nicht gefunden werden. Grund: Sie existiert nicht.";
         this.mockMvc.perform(
                         delete("/lines/{lineId}/", lineId))
                 .andDo(print())
@@ -284,7 +284,7 @@ class LineControllerTest extends IntegrationTest {
     @Sql("/data-test.sql")
     void testGetLineLineDoesNotExist() throws Exception {
         int lineId = 7777;
-        String expectedResponse = "Line with lineId '7777' was not found. Reason: It does not exist.";
+        String expectedResponse = "Buslinie mit ID '7777' konnte nicht gefunden werden. Grund: Sie existiert nicht.";
         this.mockMvc.perform(
                         get("/lines/{lineId}/", lineId))
                 .andDo(print())
