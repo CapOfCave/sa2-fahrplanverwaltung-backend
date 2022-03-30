@@ -125,4 +125,11 @@ class LineServiceTest extends SpringAssistedUnitTest {
     void testModifyLineLineDoesNotExist() {
         assertThrows(LineNotFoundException.class, () -> this.objectUnderTest.modifyLine(7777L, "N22"));
     }
+
+    @Test
+    @Sql("/data-test.sql")
+    void testModifyLineLineNameTaken() {
+        String name = "S65"; // already taken
+        assertThrows(LineNotFoundException.class, () -> this.objectUnderTest.modifyLine(7777L, name));
+    }
 }
